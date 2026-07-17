@@ -1,6 +1,6 @@
 # mcp_probe
 
-![mcp_probe banner](doc/banner.png)
+![mcp_probe banner](https://raw.githubusercontent.com/Yusufihsangorgel/mcp_probe/main/doc/banner.png)
 
 Test harness and conformance checks for MCP servers, built on the official
 [dart_mcp](https://pub.dev/packages/dart_mcp) client.
@@ -31,7 +31,7 @@ Add `mcp_probe` as a dev dependency next to `test`:
 
 ```yaml
 dev_dependencies:
-  mcp_probe: ^0.1.0
+  mcp_probe: ^0.1.1
   test: ^1.25.0
 ```
 
@@ -81,7 +81,8 @@ subscriptions, progress notifications, completions), the underlying
 
 The expectation helpers live in the separate
 `package:mcp_probe/testing.dart` entrypoint because they depend on
-`package:test`; the harness and the conformance checks do not.
+`package:test`. The harness and the conformance checks do not use it,
+though the package still lists `test` as a dependency for that entrypoint.
 
 ## Conformance checks
 
