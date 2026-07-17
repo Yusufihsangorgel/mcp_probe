@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="400" viewBox="0 0 1200 400">
+  <defs>
+    <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="12" cy="12" r="1.5" fill="#E2E8F0" fill-opacity="0.05"/>
+    </pattern>
+  </defs>
+
+  <!-- background -->
+  <rect width="1200" height="400" fill="#0B1220"/>
+  <rect width="1200" height="400" fill="url(#dots)"/>
+
+  <!-- type lockup, lower left -->
+  <rect x="66" y="200" width="44" height="6" fill="#38BDF8"/>
+  <text x="64" y="292" font-family="Menlo, monospace" font-size="64" font-weight="bold" fill="#E2E8F0">mcp_probe</text>
+  <text x="66" y="338" font-family="Menlo, monospace" font-size="24" fill="#94A3B8">Test harness and conformance checks for MCP servers</text>
+
+  <!-- motif: client bracket <-> server bracket handshake, probed by checks -->
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- client bracket (angle bracket, opens right) -->
+    <path d="M 872 96 L 836 156 L 872 216" stroke="#38BDF8" stroke-width="3"/>
+    <!-- server bracket (angle bracket, opens left) -->
+    <path d="M 1052 96 L 1088 156 L 1052 216" stroke="#38BDF8" stroke-width="3"/>
+
+    <!-- request line with arrowhead, client to server -->
+    <path d="M 892 132 L 1028 132" stroke="#1E3A5F" stroke-width="3"/>
+    <path d="M 1018 124 L 1030 132 L 1018 140" stroke="#1E3A5F" stroke-width="3"/>
+    <!-- response line with arrowhead, server to client -->
+    <path d="M 1032 180 L 896 180" stroke="#1E3A5F" stroke-width="3"/>
+    <path d="M 906 172 L 894 180 L 906 188" stroke="#1E3A5F" stroke-width="3"/>
+
+    <!-- probe needle dropping onto the response line, oscilloscope style -->
+    <path d="M 962 60 L 962 126" stroke="#38BDF8" stroke-width="3"/>
+    <circle cx="962" cy="54" r="5" stroke="#38BDF8" stroke-width="3"/>
+
+    <!-- verdict badge under the exchange: circled check -->
+    <circle cx="962" cy="264" r="24" stroke="#38BDF8" stroke-width="3"/>
+    <path d="M 950 264 L 958 273 L 975 252" stroke="#38BDF8" stroke-width="3"/>
+    <!-- two smaller findings dots beside the badge -->
+    <circle cx="1016" cy="264" r="5" fill="#1E3A5F"/>
+    <circle cx="908" cy="264" r="5" fill="#1E3A5F"/>
+  </g>
+</svg>

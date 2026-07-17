@@ -1,5 +1,7 @@
 # mcp_probe
 
+![mcp_probe banner](doc/banner.png)
+
 Test harness and conformance checks for MCP servers, built on the official
 [dart_mcp](https://pub.dev/packages/dart_mcp) client.
 
