@@ -1,14 +1,11 @@
-/// Thrown by [McpServerHarness.start] when the server process fails to
-/// complete the MCP initialize handshake.
-///
-/// The harness kills the server process before throwing, so a failed start
-/// never leaks a child process.
+/// @docImport 'harness.dart';
 library;
-
-import 'harness.dart';
 
 /// An error that occurred while starting an MCP server and performing the
 /// initialize handshake with it.
+///
+/// Thrown by [McpServerHarness.start]. The harness kills the server process
+/// before throwing, so a failed start never leaks a child process.
 class McpHandshakeException implements Exception {
   /// Creates a handshake exception.
   McpHandshakeException(
