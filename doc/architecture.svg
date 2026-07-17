@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1160" height="480" viewBox="0 0 1160 480" font-family="Menlo, monospace">
+  <defs>
+    <marker id="arw" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#38BDF8"/>
+    </marker>
+    <marker id="arwd" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#64748B"/>
+    </marker>
+  </defs>
+
+  <rect width="1160" height="480" fill="#0B1220"/>
+  <text x="48" y="52" font-size="26" font-weight="bold" fill="#E2E8F0">How mcp_probe tests an MCP server</text>
+  <text x="48" y="80" font-size="15" fill="#94A3B8">The harness starts your server as a subprocess, drives it over stdio, and checks each reply against a set of rules.</text>
+
+  <!-- Harness column -->
+  <rect x="48" y="104" width="356" height="252" rx="12" fill="#0E1A2E" stroke="#1E3A5F" stroke-width="1.5"/>
+  <text x="72" y="130" font-size="14" fill="#64748B">HARNESS  ·  built on dart_mcp</text>
+
+  <rect x="72" y="146" width="308" height="62" rx="8" fill="#111C2E" stroke="#1E3A5F" stroke-width="1.5"/>
+  <text x="88" y="174" font-size="15" fill="#E2E8F0">McpServerHarness.start(cmd)</text>
+  <text x="88" y="194" font-size="12" fill="#94A3B8">spawn the server, run the handshake</text>
+
+  <rect x="72" y="222" width="308" height="62" rx="8" fill="#111C2E" stroke="#1E3A5F" stroke-width="1.5"/>
+  <text x="88" y="250" font-size="15" fill="#E2E8F0">checkServer(cmd)</text>
+  <text x="88" y="270" font-size="12" fill="#94A3B8">run every rule, then shut down</text>
+
+  <rect x="72" y="298" width="308" height="40" rx="8" fill="#0B1220" stroke="#1E3A5F" stroke-width="1.2"/>
+  <text x="88" y="315" font-size="11.5" fill="#64748B">expectToolExists, expectToolCallSucceeds</text>
+  <text x="88" y="330" font-size="11.5" fill="#64748B">ready-made checks from testing.dart</text>
+
+  <!-- stdio column -->
+  <rect x="486" y="104" width="150" height="252" rx="12" fill="#0E1A2E" stroke="#1E3A5F" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="510" y="130" font-size="14" fill="#64748B">stdio</text>
+  <text x="561" y="234" font-size="14" fill="#E2E8F0" text-anchor="middle" transform="rotate(-90 561 234)">JSON-RPC over a pipe</text>
+
+  <!-- Server column -->
+  <rect x="718" y="104" width="394" height="252" rx="12" fill="#0E1A2E" stroke="#1E3A5F" stroke-width="1.5"/>
+  <text x="742" y="130" font-size="14" fill="#64748B">SERVER UNDER TEST  ·  subprocess</text>
+
+  <rect x="742" y="146" width="346" height="62" rx="8" fill="#111C2E" stroke="#1E3A5F" stroke-width="1.5"/>
+  <text x="758" y="174" font-size="15" fill="#E2E8F0">initialize handshake</text>
+  <text x="758" y="194" font-size="12" fill="#94A3B8">protocol version, serverInfo name and version</text>
+
+  <rect x="742" y="222" width="346" height="62" rx="8" fill="#111C2E" stroke="#1E3A5F" stroke-width="1.5"/>
+  <text x="758" y="250" font-size="15" fill="#E2E8F0">list tools, resources, prompts</text>
+  <text x="758" y="270" font-size="12" fill="#94A3B8">declared capabilities answer their list call</text>
+
+  <rect x="742" y="298" width="346" height="40" rx="8" fill="#0B1220" stroke="#1E3A5F" stroke-width="1.2"/>
+  <text x="758" y="315" font-size="11.5" fill="#64748B">tools/call smoke: only when callTools is true</text>
+  <text x="758" y="330" font-size="11.5" fill="#64748B">also probes an unknown method and stdout noise</text>
+
+  <!-- request / response arrows -->
+  <text x="433" y="168" font-size="11" fill="#64748B" text-anchor="middle">requests</text>
+  <text x="689" y="168" font-size="11" fill="#64748B" text-anchor="middle">requests</text>
+  <path d="M380 177 L486 177" stroke="#38BDF8" stroke-width="2" fill="none" marker-end="url(#arw)"/>
+  <path d="M636 177 L742 177" stroke="#38BDF8" stroke-width="2" fill="none" marker-end="url(#arw)"/>
+
+  <text x="433" y="245" font-size="11" fill="#64748B" text-anchor="middle">responses</text>
+  <text x="689" y="245" font-size="11" fill="#64748B" text-anchor="middle">responses</text>
+  <path d="M742 253 L636 253" stroke="#64748B" stroke-width="1.8" fill="none" marker-end="url(#arwd)"/>
+  <path d="M486 253 L380 253" stroke="#64748B" stroke-width="1.8" fill="none" marker-end="url(#arwd)"/>
+
+  <!-- harness produces the report -->
+  <path d="M226 356 L226 386" stroke="#38BDF8" stroke-width="2" fill="none" marker-end="url(#arw)"/>
+  <text x="244" y="376" font-size="11" fill="#64748B">one finding per rule</text>
+
+  <!-- ConformanceReport -->
+  <rect x="48" y="388" width="1064" height="64" rx="12" fill="#0E1A2E" stroke="#38BDF8" stroke-width="1.6"/>
+  <text x="72" y="418" font-size="16" fill="#E2E8F0">ConformanceReport</text>
+  <text x="72" y="440" font-size="12.5" fill="#94A3B8">pass or fail per rule, as error, warning, or info findings, plus a toMarkdown() renderer</text>
+  <text x="1088" y="422" font-size="12.5" fill="#64748B" text-anchor="end">report.errors  ·  report.toMarkdown()</text>
+</svg>

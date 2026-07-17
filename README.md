@@ -25,6 +25,8 @@ script, a compiled binary. On Windows, launch batch-file based tools such as
 npx by their full script name (`npx.cmd`), since `Process.start` does not
 resolve `.cmd` files by their bare name.
 
+![Diagram: the harness drives an MCP server over stdio and turns each reply into a ConformanceReport](https://raw.githubusercontent.com/Yusufihsangorgel/mcp_probe/main/doc/architecture.png)
+
 ## Using the harness in tests
 
 Add `mcp_probe` as a dev dependency next to `test`:
