@@ -6,5 +6,6 @@
 - `checkServer` and `ConformanceReport`: conformance rules for the initialize
   handshake, declared capabilities, tool definitions, and JSON-RPC error
   behavior, with Markdown rendering.
-- `package:test` helpers: `expectToolExists`, `expectToolCallSucceeds`,
-  `expectToolCallFails`, `expectResourceExists`.
+- `package:test` helpers in the `package:mcp_probe/testing.dart` entrypoint:
+  `expectToolExists`, `expectToolCallSucceeds`, `expectToolCallFails`,
+  `expectResourceExists`.

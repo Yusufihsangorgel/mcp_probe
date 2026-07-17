@@ -16,11 +16,14 @@ you assert on its behavior from `package:test`:
   command and returns a `ConformanceReport` with error, warning, and info
   findings, plus a `toMarkdown()` renderer.
 - `expectToolExists`, `expectToolCallSucceeds`, `expectToolCallFails`, and
-  `expectResourceExists` are ready-made expectation helpers for tests.
+  `expectResourceExists` are ready-made expectation helpers, exported from
+  `package:mcp_probe/testing.dart`.
 
 The server under test does not have to be written in Dart. Anything that
 speaks MCP over stdio works: a Dart script, `npx -y some-server`, a Python
-script, a compiled binary.
+script, a compiled binary. On Windows, launch batch-file based tools such as
+npx by their full script name (`npx.cmd`), since `Process.start` does not
+resolve `.cmd` files by their bare name.
 
 ## Using the harness in tests
 
@@ -36,6 +39,7 @@ Then start your server once per suite and assert on it:
 
 ```dart
 import 'package:mcp_probe/mcp_probe.dart';
+import 'package:mcp_probe/testing.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -75,6 +79,10 @@ The harness wraps the common APIs. For anything else (resource
 subscriptions, progress notifications, completions), the underlying
 `dart_mcp` `ServerConnection` is available as `harness.connection`.
 
+The expectation helpers live in the separate
+`package:mcp_probe/testing.dart` entrypoint because they depend on
+`package:test`; the harness and the conformance checks do not.
+
 ## Conformance checks
 
 `checkServer` starts the server, runs every rule, shuts the server down, and
@@ -107,6 +115,7 @@ server.
 | `capabilities/resources-listable` | error | A server that declares `resources` answers `resources/list`. |
 | `capabilities/prompts-listable` | error | A server that declares `prompts` answers `prompts/list`. |
 | `jsonrpc/method-not-found` | error or warning | An unknown method is answered with JSON-RPC error -32601. |
+| `stdio/clean-stdout` | error | The server writes nothing but protocol messages to stdout. |
 
 Passing checks are recorded as info findings, so the report shows what was
 covered rather than only what failed.
@@ -119,18 +128,24 @@ once with empty arguments. Be aware of what that means: a smoke call is a
 real call, and whatever side effects the tool has will run. Only enable it
 for servers whose tools are safe to invoke blindly, or point it at a
 sandboxed instance. A tool that rejects the empty arguments with an in-band
-error (`isError: true`) still passes the rule; only protocol-level failures
-are errors.
+error (`isError: true`) or with JSON-RPC error -32602 (invalid params)
+still passes the rule, since the specification allows both; other
+protocol-level failures are errors.
 
 ## Relationship to dart_mcp
 
 This package is a thin layer over the official
 [dart_mcp](https://pub.dev/packages/dart_mcp) client and does not
 reimplement any of the protocol. Requests, responses, and capability types
-in the public API are `dart_mcp` types.
+in the public API are `dart_mcp` types. This release builds on dart_mcp
+0.5.x, which recognizes protocol versions 2024-11-05 through 2025-11-25;
+servers negotiating anything else fail `initialize/protocol-version`.
 
 ## Limits
 
 - stdio is the only supported transport in this release.
 - The conformance rule set is deliberately small and covers the handshake
   and the declared-capability surface, not the full specification.
+- Stdout noise detection is line-based: any non-empty stdout line that does
+  not start with `{` counts as noise for `stdio/clean-stdout` and is
+  filtered out before it reaches the protocol parser.

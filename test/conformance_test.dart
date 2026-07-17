@@ -32,6 +32,7 @@ void main() {
           ConformanceRules.resourcesListable,
           ConformanceRules.promptsListable,
           ConformanceRules.methodNotFound,
+          ConformanceRules.cleanStdout,
         ]),
       );
     });
@@ -59,14 +60,52 @@ void main() {
       for (final finding in report.findings)
         if (finding.rule == ConformanceRules.toolCallSmoke) finding,
     ];
-    // The fixture has three tools: echo (rejects the empty arguments
-    // in-band), fail_tool (fails in-band), and read_env (succeeds). All
-    // three shapes are conformant.
-    expect(smoke, hasLength(3));
+    // The fixture has four tools: echo (rejects the empty arguments
+    // in-band), fail_tool (fails in-band), read_env (succeeds), and
+    // strict_args (rejects with JSON-RPC error -32602). All four shapes are
+    // conformant.
+    expect(smoke, hasLength(4));
     expect(report.hasErrors, isFalse);
     for (final finding in smoke) {
       expect(finding.severity, ConformanceSeverity.info);
     }
+    expect(
+      smoke.map((finding) => finding.message),
+      anyElement(contains('-32602')),
+    );
+  });
+
+  test('flags non-string serverInfo fields without throwing', () async {
+    final report = await checkFixture('malformed_server_info_server');
+    final errorsByRule = {
+      for (final finding in report.errors) finding.rule: finding.message,
+    };
+    expect(
+      errorsByRule[ConformanceRules.serverInfoName],
+      contains('not a string (got int)'),
+    );
+    expect(
+      errorsByRule[ConformanceRules.serverInfoVersion],
+      contains('not a string (got int)'),
+    );
+    expect(report.serverName, isNull);
+  });
+
+  test('reports a handshake error when the command cannot start', () async {
+    final report = await checkServer('/no/such/binary-mcp-probe');
+    expect(report.errors.single.rule, ConformanceRules.handshake);
+    expect(
+      report.errors.single.message,
+      contains('failed to start the server process'),
+    );
+  });
+
+  test('flags log lines on stdout', () async {
+    final report = await checkFixture('noisy_stdout_server');
+    final finding = report.errors.singleWhere(
+      (finding) => finding.rule == ConformanceRules.cleanStdout,
+    );
+    expect(finding.message, contains('starting up'));
   });
 
   test('flags empty serverInfo fields as errors', () async {

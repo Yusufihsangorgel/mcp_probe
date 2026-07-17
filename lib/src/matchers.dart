@@ -9,7 +9,7 @@ Future<void> expectToolExists(McpServerHarness harness, String name) async {
   final result = await harness.listTools();
   final names = [
     for (final tool in result.tools)
-      (tool as Map<String, Object?>)['name'] as String? ?? '<unnamed>',
+      _describe((tool as Map<String, Object?>)['name'], '<unnamed>'),
   ];
   if (!names.contains(name)) {
     fail(
@@ -66,7 +66,7 @@ Future<void> expectResourceExists(McpServerHarness harness, String uri) async {
   final result = await harness.listResources();
   final uris = [
     for (final resource in result.resources)
-      (resource as Map<String, Object?>)['uri'] as String? ?? '<no uri>',
+      _describe((resource as Map<String, Object?>)['uri'], '<no uri>'),
   ];
   if (!uris.contains(uri)) {
     fail(
@@ -75,6 +75,11 @@ Future<void> expectResourceExists(McpServerHarness harness, String uri) async {
     );
   }
 }
+
+/// Renders a server-provided value for a failure message without assuming
+/// it has the type the spec requires.
+String _describe(Object? value, String whenNull) =>
+    value == null ? whenNull : value.toString();
 
 String _contentSummary(CallToolResult result) {
   final parts = [

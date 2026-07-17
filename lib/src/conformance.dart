@@ -50,6 +50,9 @@ abstract final class ConformanceRules {
   /// Unknown methods must be answered with a JSON-RPC `method not found`
   /// error (-32601).
   static const methodNotFound = 'jsonrpc/method-not-found';
+
+  /// A stdio server must write nothing but protocol messages to stdout.
+  static const cleanStdout = 'stdio/clean-stdout';
 }
 
 /// Starts `command args`, runs every conformance rule in [ConformanceRules]
@@ -109,13 +112,13 @@ Future<ConformanceReport> checkServer(
     );
   }
 
+  // Everything past this point reads server-controlled data, so it stays
+  // inside the try: a malformed value must produce a finding, not an
+  // uncaught error that leaks the server process.
   final rawResult = harness.initializeResult as Map<String, Object?>;
-  final rawServerInfo =
-      rawResult['serverInfo'] as Map<String, Object?>? ??
-      const <String, Object?>{};
-  final serverName = rawServerInfo['name'] as String?;
-  final serverVersion = rawServerInfo['version'] as String?;
-  final protocolVersion = rawResult['protocolVersion'] as String?;
+  String? serverName;
+  String? serverVersion;
+  String? protocolVersion;
 
   try {
     add(
@@ -123,38 +126,30 @@ Future<ConformanceReport> checkServer(
       ConformanceRules.handshake,
       'server answered the initialize request',
     );
+    final rawProtocolVersion = rawResult['protocolVersion'];
+    if (rawProtocolVersion is String) protocolVersion = rawProtocolVersion;
     add(
       ConformanceSeverity.info,
       ConformanceRules.protocolVersion,
       'negotiated protocol version $protocolVersion',
     );
 
-    if (serverName == null || serverName.isEmpty) {
-      add(
-        ConformanceSeverity.error,
-        ConformanceRules.serverInfoName,
-        'serverInfo.name is missing or empty',
-      );
-    } else {
-      add(
-        ConformanceSeverity.info,
-        ConformanceRules.serverInfoName,
-        'serverInfo.name is "$serverName"',
-      );
-    }
-    if (serverVersion == null || serverVersion.isEmpty) {
-      add(
-        ConformanceSeverity.error,
-        ConformanceRules.serverInfoVersion,
-        'serverInfo.version is missing or empty',
-      );
-    } else {
-      add(
-        ConformanceSeverity.info,
-        ConformanceRules.serverInfoVersion,
-        'serverInfo.version is "$serverVersion"',
-      );
-    }
+    final rawServerInfo = rawResult['serverInfo'];
+    final serverInfoMap = rawServerInfo is Map<String, Object?>
+        ? rawServerInfo
+        : const <String, Object?>{};
+    serverName = _checkServerInfoField(
+      serverInfoMap['name'],
+      field: 'name',
+      rule: ConformanceRules.serverInfoName,
+      add: add,
+    );
+    serverVersion = _checkServerInfoField(
+      serverInfoMap['version'],
+      field: 'version',
+      rule: ConformanceRules.serverInfoVersion,
+      add: add,
+    );
 
     await _checkTools(harness, add, callTools: callTools);
     await _checkListable(
@@ -172,6 +167,7 @@ Future<ConformanceReport> checkServer(
       add: add,
     );
     await _checkMethodNotFound(harness, add);
+    _checkCleanStdout(harness, add);
   } finally {
     await harness.shutdown();
   }
@@ -187,6 +183,32 @@ Future<ConformanceReport> checkServer(
 
 typedef _AddFinding =
     void Function(ConformanceSeverity severity, String rule, String message);
+
+String? _checkServerInfoField(
+  Object? value, {
+  required String field,
+  required String rule,
+  required _AddFinding add,
+}) {
+  if (value is String && value.isNotEmpty) {
+    add(ConformanceSeverity.info, rule, 'serverInfo.$field is "$value"');
+    return value;
+  }
+  if (value == null || value is String) {
+    add(
+      ConformanceSeverity.error,
+      rule,
+      'serverInfo.$field is missing or empty',
+    );
+  } else {
+    add(
+      ConformanceSeverity.error,
+      rule,
+      'serverInfo.$field is not a string (got ${value.runtimeType})',
+    );
+  }
+  return null;
+}
 
 Future<void> _checkTools(
   McpServerHarness harness,
@@ -232,9 +254,17 @@ Future<void> _checkTools(
   var namesOk = true;
   var schemasOk = true;
   for (final (index, tool) in rawTools.indexed) {
-    final name = tool['name'] as String?;
+    final rawName = tool['name'];
+    final name = rawName is String ? rawName : null;
     final label = name == null || name.isEmpty ? 'tool at index $index' : name;
-    if (name == null || name.isEmpty) {
+    if (rawName != null && rawName is! String) {
+      namesOk = false;
+      add(
+        ConformanceSeverity.error,
+        ConformanceRules.toolName,
+        '$label has a non-string name (got ${rawName.runtimeType})',
+      );
+    } else if (name == null || name.isEmpty) {
       namesOk = false;
       add(
         ConformanceSeverity.error,
@@ -277,8 +307,8 @@ Future<void> _checkTools(
 
   if (!callTools) return;
   for (final tool in rawTools) {
-    final name = tool['name'] as String?;
-    if (name == null || name.isEmpty) continue;
+    final name = tool['name'];
+    if (name is! String || name.isEmpty) continue;
     try {
       final result = await harness.callTool(
         name,
@@ -296,6 +326,21 @@ Future<void> _checkTools(
           ConformanceSeverity.info,
           ConformanceRules.toolCallSmoke,
           'smoke call of "$name" succeeded',
+        );
+      }
+    } on RpcException catch (e) {
+      if (e.code == error_code.INVALID_PARAMS) {
+        add(
+          ConformanceSeverity.info,
+          ConformanceRules.toolCallSmoke,
+          'smoke call of "$name" rejected the empty arguments with JSON-RPC '
+          'error -32602, which the spec allows',
+        );
+      } else {
+        add(
+          ConformanceSeverity.error,
+          ConformanceRules.toolCallSmoke,
+          'smoke call of "$name" failed at the protocol level: $e',
         );
       }
     } catch (e) {
@@ -374,4 +419,25 @@ Future<void> _checkMethodNotFound(
       'server did not answer unknown method "$method" at all',
     );
   }
+}
+
+void _checkCleanStdout(McpServerHarness harness, _AddFinding add) {
+  final noise = harness.stdoutNoise;
+  if (noise.isEmpty) {
+    add(
+      ConformanceSeverity.info,
+      ConformanceRules.cleanStdout,
+      'stdout carried only protocol messages',
+    );
+    return;
+  }
+  final count = noise.length >= McpServerHarness.stdoutNoiseCap
+      ? 'at least ${noise.length}'
+      : '${noise.length}';
+  add(
+    ConformanceSeverity.error,
+    ConformanceRules.cleanStdout,
+    'server wrote $count non-protocol line(s) to stdout, '
+    'first: "${noise.first}"',
+  );
 }

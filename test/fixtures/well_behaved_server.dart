@@ -1,13 +1,14 @@
 /// A spec-abiding MCP server used as the happy-path fixture.
 ///
-/// Exposes three tools (`echo`, `fail_tool`, `read_env`), one resource
-/// (`probe://greeting`), and one prompt (`greet`).
+/// Exposes four tools (`echo`, `fail_tool`, `read_env`, `strict_args`), one
+/// resource (`probe://greeting`), and one prompt (`greet`).
 library;
 
 import 'dart:io';
 
 import 'package:dart_mcp/server.dart';
 import 'package:dart_mcp/stdio.dart';
+import 'package:json_rpc_2/json_rpc_2.dart' show RpcException;
 
 void main() {
   WellBehavedServer(stdioChannel(input: stdin, output: stdout));
@@ -55,6 +56,27 @@ base class WellBehavedServer extends MCPServer
           TextContent(text: Platform.environment['MCP_PROBE_ENV'] ?? ''),
         ],
       ),
+    );
+    registerTool(
+      Tool(
+        name: 'strict_args',
+        description:
+            'Rejects calls without a "text" argument at the protocol level.',
+        inputSchema: Schema.object(
+          properties: {'text': Schema.string()},
+          required: ['text'],
+        ),
+      ),
+      (request) {
+        final text = request.arguments?['text'];
+        if (text is! String) {
+          // The spec allows rejecting invalid arguments with -32602 instead
+          // of an in-band error.
+          throw RpcException.invalidParams('missing required argument "text"');
+        }
+        return CallToolResult(content: [TextContent(text: text)]);
+      },
+      validateArguments: false,
     );
     addResource(
       Resource(

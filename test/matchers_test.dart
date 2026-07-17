@@ -1,5 +1,6 @@
 import 'package:dart_mcp/client.dart';
 import 'package:mcp_probe/mcp_probe.dart';
+import 'package:mcp_probe/testing.dart';
 import 'package:test/test.dart';
 
 import 'fixture_helpers.dart';
@@ -69,6 +70,24 @@ void main() {
           (e) => e.message,
           'message',
           contains('probe://greeting'),
+        ),
+      ),
+    );
+  });
+
+  test('expectToolExists tolerates malformed tool listings', () async {
+    final broken = await startFixture('schemaless_tool_server');
+    addTearDown(broken.shutdown);
+    // The listing contains a tool without a name; the matcher must not
+    // crash on it.
+    await expectToolExists(broken, 'no_schema');
+    await expectLater(
+      expectToolExists(broken, 'nope'),
+      throwsA(
+        isA<TestFailure>().having(
+          (e) => e.message,
+          'message',
+          contains('<unnamed>'),
         ),
       ),
     );

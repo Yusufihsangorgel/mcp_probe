@@ -96,6 +96,23 @@ void main() {
         ),
       );
     });
+
+    test('propagates protocol-level tool errors as RpcException', () {
+      expect(
+        harness.callTool('strict_args'),
+        throwsA(
+          isA<RpcException>().having(
+            (e) => e.code,
+            'code',
+            error_code.INVALID_PARAMS,
+          ),
+        ),
+      );
+    });
+
+    test('records no stdout noise for a clean server', () {
+      expect(harness.stdoutNoise, isEmpty);
+    });
   });
 
   test('passes extra environment variables to the server process', () async {
@@ -135,6 +152,41 @@ void main() {
     expect(caught.rawInitializeResult, isNull);
     expect(caught.pid, isNotNull);
     expect(await processIsAlive(caught.pid!), isFalse);
+  });
+
+  test('start throws when the command cannot be started', () async {
+    McpHandshakeException? caught;
+    try {
+      await McpServerHarness.start('/no/such/binary-mcp-probe');
+    } on McpHandshakeException catch (e) {
+      caught = e;
+    }
+    expect(caught, isNotNull);
+    expect(caught!.message, contains('failed to start the server process'));
+    expect(caught.pid, isNull);
+  });
+
+  test('start reports malformed initialize results and cleans up', () async {
+    McpHandshakeException? caught;
+    try {
+      await startFixture('malformed_protocol_version_server');
+    } on McpHandshakeException catch (e) {
+      caught = e;
+    }
+    expect(caught, isNotNull);
+    expect(caught!.message, contains('malformed result'));
+    expect(await processIsAlive(caught.pid!), isFalse);
+  });
+
+  test('filters stdout noise instead of failing the handshake', () async {
+    final harness = await startFixture('noisy_stdout_server');
+    addTearDown(harness.shutdown);
+    expect(harness.serverInfo.name, 'noisy_stdout');
+    expect(harness.stdoutNoise, isNotEmpty);
+    expect(harness.stdoutNoise.first, contains('starting up'));
+    // The connection still works despite the noise.
+    final result = await harness.callTool('noop');
+    expect(result.isError, isNot(isTrue));
   });
 
   test('start rejects unsupported protocol versions and cleans up', () async {

@@ -1,6 +1,7 @@
 /// The severity of a [ConformanceFinding].
 enum ConformanceSeverity {
-  /// The server violates the MCP specification or failed to respond.
+  /// The server violates the MCP specification, failed to respond, or is
+  /// incompatible with the protocol versions this checker knows.
   error,
 
   /// The behavior is legal but likely to confuse clients.

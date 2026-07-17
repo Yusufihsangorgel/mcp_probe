@@ -31,12 +31,20 @@ class McpServerHarness {
     this.initializeResult,
     this.timeout,
     this._stderrBuffer,
+    this._stdoutNoise,
   );
 
   final Process _process;
   final MCPClient _client;
   final StringBuffer _stderrBuffer;
+  final List<String> _stdoutNoise;
   bool _shutdown = false;
+
+  /// How much stderr output is retained; see [serverStderr].
+  static const int stderrCap = 1024 * 1024;
+
+  /// How many noise lines are retained; see [stdoutNoise].
+  static const int stdoutNoiseCap = 100;
 
   /// The live `dart_mcp` connection to the server.
   ///
@@ -66,8 +74,19 @@ class McpServerHarness {
   /// The negotiated protocol version.
   ProtocolVersion? get protocolVersion => initializeResult.protocolVersion;
 
-  /// Everything the server has written to stderr so far.
+  /// What the server has written to stderr so far.
+  ///
+  /// Capped at [stderrCap] characters; when a server floods stderr, the
+  /// earliest output is dropped and the most recent output is kept.
   String get serverStderr => _stderrBuffer.toString();
+
+  /// Lines the server wrote to stdout that are not protocol messages.
+  ///
+  /// The stdio transport requires every stdout line to be an MCP message.
+  /// The harness treats any non-empty line that does not start with `{` as
+  /// noise: the line is recorded here and filtered out so it cannot corrupt
+  /// the connection. At most [stdoutNoiseCap] lines are kept.
+  List<String> get stdoutNoise => List.unmodifiable(_stdoutNoise);
 
   /// Starts `command args` as a child process, connects to it as an MCP
   /// server over stdio, and completes the initialize handshake.
@@ -89,22 +108,51 @@ class McpServerHarness {
     Duration timeout = const Duration(seconds: 10),
     Implementation? clientInfo,
   }) async {
-    final process = await Process.start(
-      command,
-      args,
-      environment: environment,
-      workingDirectory: workingDirectory,
-    );
+    final Process process;
+    try {
+      process = await Process.start(
+        command,
+        args,
+        environment: environment,
+        workingDirectory: workingDirectory,
+      );
+    } catch (error) {
+      throw McpHandshakeException('failed to start the server process: $error');
+    }
     final stderrBuffer = StringBuffer();
-    process.stderr
+    process.stderr.transform(utf8.decoder).listen((chunk) {
+      stderrBuffer.write(chunk);
+      if (stderrBuffer.length > stderrCap) {
+        final kept = stderrBuffer.toString();
+        stderrBuffer
+          ..clear()
+          ..write(kept.substring(kept.length - stderrCap));
+      }
+    }, onError: (Object _) {});
+
+    // The stdio transport requires every stdout line to be a protocol
+    // message. Filter out anything else so log lines cannot corrupt the
+    // connection, and record them for the stdio/clean-stdout check.
+    final stdoutNoise = <String>[];
+    final protocolLines = process.stdout
         .transform(utf8.decoder)
-        .listen(stderrBuffer.write, onError: (Object _) {});
+        .transform(const LineSplitter())
+        .where((line) {
+          final trimmed = line.trim();
+          if (trimmed.isEmpty) return false;
+          if (trimmed.startsWith('{')) return true;
+          if (stdoutNoise.length < stdoutNoiseCap) stdoutNoise.add(line);
+          return false;
+        });
 
     final client = MCPClient(
       clientInfo ?? Implementation(name: 'mcp_probe', version: harnessVersion),
     );
     final connection = client.connectServer(
-      stdioChannel(input: process.stdout, output: process.stdin),
+      stdioChannel(
+        input: protocolLines.map((line) => utf8.encode('$line\n')),
+        output: process.stdin,
+      ),
     );
 
     Never fail(String message, {Map<String, Object?>? rawInitializeResult}) {
@@ -132,11 +180,17 @@ class McpServerHarness {
       fail('server did not answer the initialize request within $timeout');
     } catch (error) {
       await _forceStop(process, connection);
+      if (error is TypeError) {
+        fail('server answered initialize with a malformed result: $error');
+      }
       fail('initialize handshake failed: $error');
     }
 
     final rawResult = result as Map<String, Object?>;
-    final version = result.protocolVersion;
+    final rawVersion = rawResult['protocolVersion'];
+    final version = rawVersion is String
+        ? ProtocolVersion.tryParse(rawVersion)
+        : null;
     if (version == null || !version.isSupported) {
       // dart_mcp already shut the connection down in this case.
       await _forceStop(process, connection);
@@ -155,6 +209,7 @@ class McpServerHarness {
       result,
       timeout,
       stderrBuffer,
+      stdoutNoise,
     );
   }
 
