@@ -1,3 +1,10 @@
+## 0.2.0
+
+- Add a command-line tool. `dart pub global activate mcp_probe` installs an
+  `mcp_probe check <command> [args...]` executable that runs a server over stdio,
+  prints each conformance finding, and exits non-zero if any check reports an
+  error, so it drops into a CI step without writing any Dart.
+
 ## 0.1.3
 
 - `listTools`, `listResources` and `listPrompts` now follow `nextCursor`

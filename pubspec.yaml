@@ -3,7 +3,10 @@ description: >-
   Conformance checks and a test harness for Model Context Protocol (MCP)
   servers. Runs any MCP server over stdio and asserts on its behavior from
   package:test. Built on dart_mcp.
-version: 0.1.3
+version: 0.2.0
+
+executables:
+  mcp_probe:
 repository: https://github.com/Yusufihsangorgel/mcp_probe
 topics:
   - mcp

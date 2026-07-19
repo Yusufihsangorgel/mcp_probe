@@ -27,6 +27,21 @@ resolve `.cmd` files by their bare name.
 
 ![Diagram: the harness drives an MCP server over stdio and turns each reply into a ConformanceReport](https://raw.githubusercontent.com/Yusufihsangorgel/mcp_probe/main/doc/architecture.png)
 
+## Command line
+
+To check a server without writing any Dart, install the CLI and point it at the
+command that launches your server:
+
+```sh
+dart pub global activate mcp_probe
+mcp_probe check dart run my_server.dart
+mcp_probe check node build/server.js --flag
+```
+
+It runs the server over stdio, completes the handshake, prints each finding, and
+exits non-zero if any check reports an error, so it drops straight into a CI
+step.
+
 ## Using the harness in tests
 
 Add `mcp_probe` as a dev dependency next to `test`:
