@@ -1,3 +1,10 @@
+## 0.1.3
+
+- `listTools`, `listResources` and `listPrompts` now follow `nextCursor`
+  pagination and return every page combined. Previously only the first page was
+  fetched, so a conformance run against a paginated server validated just those
+  items and could report the server green without ever seeing the rest.
+
 ## 0.1.2
 
 - Docs: tightened the README wording and visuals.

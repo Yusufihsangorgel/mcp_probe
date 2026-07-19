@@ -219,4 +219,22 @@ void main() {
     await harness.shutdown(killAfter: const Duration(seconds: 1));
     expect(await processIsAlive(pid), isFalse);
   });
+
+  group('with a paginated tools server', () {
+    late McpServerHarness harness;
+
+    setUpAll(() async {
+      harness = await startFixture('paginated_tools_server');
+    });
+
+    tearDownAll(() => harness.shutdown());
+
+    test('listTools follows nextCursor and returns every page', () async {
+      final result = await harness.listTools();
+      final names = [for (final tool in result.tools) tool.name];
+      // tool_b lives on the second page; a harness that stopped after page one
+      // would only see tool_a.
+      expect(names, containsAll(['tool_a', 'tool_b']));
+    });
+  });
 }

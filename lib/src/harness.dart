@@ -213,9 +213,45 @@ class McpServerHarness {
     );
   }
 
-  /// Lists the tools exposed by the server.
-  Future<ListToolsResult> listTools() =>
-      _request('tools/list', connection.listTools());
+  /// Lists every tool the server exposes, following pagination.
+  ///
+  /// A server may return its tools across several pages, each carrying a
+  /// `nextCursor`. This requests page after page until the cursor is absent and
+  /// returns the combined list, so a conformance check never validates only the
+  /// first page and calls a paginated server green on the strength of it.
+  Future<ListToolsResult> listTools() => _paginate<ListToolsResult, Tool>(
+        description: 'tools/list',
+        fetchPage: (cursor) =>
+            connection.listTools(ListToolsRequest(cursor: cursor)),
+        itemsOf: (page) => page.tools,
+        cursorOf: (page) => page.nextCursor,
+        combine: (tools) => ListToolsResult(tools: tools),
+      );
+
+  /// Follows a paginated list request to its end, returning every item across
+  /// all pages combined into a single [result].
+  Future<R> _paginate<R, T>({
+    required String description,
+    required Future<R> Function(Cursor? cursor) fetchPage,
+    required List<T> Function(R page) itemsOf,
+    required Cursor? Function(R page) cursorOf,
+    required R Function(List<T> items) combine,
+  }) async {
+    final items = <T>[];
+    Cursor? cursor;
+    var pages = 0;
+    while (true) {
+      final page = await _request(description, fetchPage(cursor));
+      items.addAll(itemsOf(page));
+      cursor = cursorOf(page);
+      if (cursor == null) break;
+      // Guard against a server that keeps handing back a cursor forever.
+      if (++pages > 10000) {
+        throw StateError('$description did not terminate after 10000 pages');
+      }
+    }
+    return combine(items);
+  }
 
   /// Calls the tool [name] with [arguments].
   ///
@@ -231,8 +267,14 @@ class McpServerHarness {
   );
 
   /// Lists the resources exposed by the server.
-  Future<ListResourcesResult> listResources() =>
-      _request('resources/list', connection.listResources());
+  Future<ListResourcesResult> listResources() => _paginate<ListResourcesResult, Resource>(
+        description: 'resources/list',
+        fetchPage: (cursor) =>
+            connection.listResources(ListResourcesRequest(cursor: cursor)),
+        itemsOf: (page) => page.resources,
+        cursorOf: (page) => page.nextCursor,
+        combine: (resources) => ListResourcesResult(resources: resources),
+      );
 
   /// Reads the resource at [uri].
   Future<ReadResourceResult> readResource(String uri) => _request(
@@ -241,8 +283,14 @@ class McpServerHarness {
   );
 
   /// Lists the prompts exposed by the server.
-  Future<ListPromptsResult> listPrompts() =>
-      _request('prompts/list', connection.listPrompts());
+  Future<ListPromptsResult> listPrompts() => _paginate<ListPromptsResult, Prompt>(
+        description: 'prompts/list',
+        fetchPage: (cursor) =>
+            connection.listPrompts(ListPromptsRequest(cursor: cursor)),
+        itemsOf: (page) => page.prompts,
+        cursorOf: (page) => page.nextCursor,
+        combine: (prompts) => ListPromptsResult(prompts: prompts),
+      );
 
   /// Gets the prompt [name] with [arguments].
   Future<GetPromptResult> getPrompt(
