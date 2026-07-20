@@ -1,3 +1,20 @@
+## 0.3.2
+
+- `example/probe_demo.dart` prints a real report without a server of your own.
+  It probes four servers that ship with the package: one that behaves and three
+  that break something specific, so the output shows what a failure looks like
+  before you have written anything to fail.
+  The interesting one is a server that speaks the protocol correctly and is
+  still unusable, because a `print` on the way up puts a line on stdout where
+  the transport expects only JSON-RPC. Its own tests would not catch that; what
+  a user sees is a client that will not connect.
+- `example/README.md` covers reading the report, pointing the probe at your own
+  command, the `mcp_probe check` front end for a pipeline, and asserting your
+  server's actual behaviour with the `testing.dart` helpers.
+- `test/readme_snippet_test.dart` compiles the snippet that README prints. It
+  never runs, it only has to analyse, which is enough to keep a copied example
+  from drifting away from the API it is describing.
+
 ## 0.3.1
 
 - Declare the diagram in `pubspec.yaml` so pub.dev renders it on the package
