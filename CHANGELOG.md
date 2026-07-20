@@ -1,3 +1,14 @@
+## 0.4.0
+
+- Machine-readable output and a configurable gate, which is what makes the CLI a
+  real CI step rather than something a human reads. `ConformanceReport.toJson()`
+  (and `ConformanceFinding.toJson()`) render the report as a JSON-serializable
+  map: the probed command, the server identity, a `summary` count per severity,
+  and the full findings list. The CLI gains `--format json` to print it and
+  `--fail-on error|warning|info` to choose the severity at which the exit code
+  becomes 1 (default `error`), so a pipeline can fail on a warning and capture a
+  structured report in one run. Invalid flags exit 64 with a usage message.
+
 ## 0.3.3
 
 - Install instructions now say `pub add` instead of pinning a version. The

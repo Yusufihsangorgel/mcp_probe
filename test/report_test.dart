@@ -90,4 +90,32 @@ Summary: 1 error(s), 1 warning(s), 1 info.
       '[info] initialize/handshake: server answered the initialize request',
     );
   });
+
+  test('toJson carries the findings, the server info and a summary', () {
+    final json = report.toJson();
+    expect(json['command'], 'dart run server.dart');
+    expect(json['serverName'], 'demo');
+    expect(json['serverVersion'], '1.0.0');
+    expect(json['protocolVersion'], '2025-11-25');
+    // The summary lets a consumer gate on error count without walking findings.
+    expect(json['summary'], {'error': 1, 'warning': 1, 'info': 1});
+    final findingsJson = json['findings'] as List;
+    expect(findingsJson, hasLength(3));
+    expect(findingsJson.first, {
+      'severity': 'info',
+      'rule': 'initialize/handshake',
+      'message': 'server answered the initialize request',
+    });
+  });
+
+  test('toJson omits server fields that were never learned', () {
+    const partial = ConformanceReport(
+      command: 'x',
+      findings: [],
+    );
+    final json = partial.toJson();
+    expect(json.containsKey('serverName'), isFalse);
+    expect(json['summary'], {'error': 0, 'warning': 0, 'info': 0});
+    expect(json['findings'], isEmpty);
+  });
 }

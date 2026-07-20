@@ -32,6 +32,13 @@ class ConformanceFinding {
 
   @override
   String toString() => '[${severity.name}] $rule: $message';
+
+  /// This finding as a JSON-serializable map.
+  Map<String, Object?> toJson() => {
+        'severity': severity.name,
+        'rule': rule,
+        'message': message,
+      };
 }
 
 /// The result of running [checkServer] against an MCP server.
@@ -115,6 +122,25 @@ class ConformanceReport {
     }
     return buffer.toString();
   }
+
+  /// The report as a JSON-serializable map, for a pipeline or a dashboard that
+  /// wants structured output instead of the Markdown.
+  ///
+  /// Includes the probed command, the server identity, the full findings list,
+  /// and a summary count per severity, so a consumer can gate on
+  /// `summary.error` without re-parsing the findings.
+  Map<String, Object?> toJson() => {
+        'command': command,
+        if (serverName != null) 'serverName': serverName,
+        if (serverVersion != null) 'serverVersion': serverVersion,
+        if (protocolVersion != null) 'protocolVersion': protocolVersion,
+        'summary': {
+          'error': errors.length,
+          'warning': warnings.length,
+          'info': infos.length,
+        },
+        'findings': [for (final finding in findings) finding.toJson()],
+      };
 
   static String _escape(String text) =>
       text.replaceAll('|', r'\|').replaceAll('\n', ' ');

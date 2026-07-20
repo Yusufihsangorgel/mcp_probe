@@ -42,6 +42,27 @@ It runs the server over stdio, completes the handshake, prints each finding, and
 exits non-zero if any check reports an error, so it drops straight into a CI
 step.
 
+Two flags make it a real gate. `--format json` prints the report as JSON, with a
+`summary` count per severity and the full findings list, for a pipeline or a
+dashboard that wants structured output. `--fail-on warning` (or `info`) lowers
+the bar for a non-zero exit, so a build fails on a warning, not only an error.
+
+```sh
+# Fail the build on any warning, and capture the machine-readable report.
+mcp_probe check --fail-on warning --format json dart run my_server.dart > report.json
+```
+
+```json
+{
+  "command": "dart run my_server.dart",
+  "serverName": "my-server",
+  "summary": { "error": 0, "warning": 1, "info": 12 },
+  "findings": [
+    { "severity": "info", "rule": "initialize/handshake", "message": "server answered the initialize request" }
+  ]
+}
+```
+
 ## Using the harness in tests
 
 Add `mcp_probe` as a dev dependency next to `test`:
