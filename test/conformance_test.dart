@@ -31,6 +31,7 @@ void main() {
           ConformanceRules.toolInputSchema,
           ConformanceRules.resourcesListable,
           ConformanceRules.promptsListable,
+          ConformanceRules.pingResponds,
           ConformanceRules.methodNotFound,
           ConformanceRules.cleanStdout,
         ]),

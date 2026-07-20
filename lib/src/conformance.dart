@@ -47,6 +47,9 @@ abstract final class ConformanceRules {
   /// `prompts/list`.
   static const promptsListable = 'capabilities/prompts-listable';
 
+  /// The server must answer a `ping` request promptly with an empty result.
+  static const pingResponds = 'utilities/ping';
+
   /// Unknown methods must be answered with a JSON-RPC `method not found`
   /// error (-32601).
   static const methodNotFound = 'jsonrpc/method-not-found';
@@ -166,6 +169,7 @@ Future<ConformanceReport> checkServer(
       list: () async => (await harness.listPrompts()).prompts.length,
       add: add,
     );
+    await _checkPing(harness, add);
     await _checkMethodNotFound(harness, add);
     _checkCleanStdout(harness, add);
   } finally {
@@ -380,6 +384,44 @@ Future<void> _checkListable({
       ConformanceSeverity.error,
       rule,
       '$what capability is declared but $what/list failed: $e',
+    );
+  }
+}
+
+Future<void> _checkPing(McpServerHarness harness, _AddFinding add) async {
+  // ping is an MCP utility both peers must answer: a `ping` request has to be
+  // met promptly with an empty result. `connection.ping` returns false on
+  // timeout and throws only if the server answers with a protocol error.
+  final bool responded;
+  try {
+    responded = await harness.connection.ping();
+  } on RpcException catch (e) {
+    add(
+      ConformanceSeverity.error,
+      ConformanceRules.pingResponds,
+      'server answered a ping request with JSON-RPC error ${e.code} '
+      'instead of an empty result',
+    );
+    return;
+  } catch (e) {
+    add(
+      ConformanceSeverity.error,
+      ConformanceRules.pingResponds,
+      'ping request failed at the protocol level: $e',
+    );
+    return;
+  }
+  if (responded) {
+    add(
+      ConformanceSeverity.info,
+      ConformanceRules.pingResponds,
+      'server answered a ping request',
+    );
+  } else {
+    add(
+      ConformanceSeverity.error,
+      ConformanceRules.pingResponds,
+      'server did not answer a ping request within the timeout',
     );
   }
 }

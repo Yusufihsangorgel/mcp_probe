@@ -1,3 +1,10 @@
+## 0.3.0
+
+- Add the `utilities/ping` conformance rule. MCP requires a server to answer a
+  `ping` request promptly with an empty result; `checkServer` and the CLI now
+  send one and report an error if the server times out or answers with a
+  protocol error, so a server that stops responding to liveness pings is caught.
+
 ## 0.2.0
 
 - Add a command-line tool. `dart pub global activate mcp_probe` installs an

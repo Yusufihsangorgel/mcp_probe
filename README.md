@@ -132,6 +132,7 @@ server.
 | `tools/call-smoke` | error | Optional, see below. Each tool answers a call at the protocol level. |
 | `capabilities/resources-listable` | error | A server that declares `resources` answers `resources/list`. |
 | `capabilities/prompts-listable` | error | A server that declares `prompts` answers `prompts/list`. |
+| `utilities/ping` | error | The server answers a `ping` request promptly with an empty result. |
 | `jsonrpc/method-not-found` | error or warning | An unknown method is answered with JSON-RPC error -32601. |
 | `stdio/clean-stdout` | error | The server writes nothing but protocol messages to stdout. |
 
