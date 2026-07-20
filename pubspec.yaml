@@ -3,7 +3,7 @@ description: >-
   Conformance checks and a test harness for Model Context Protocol (MCP)
   servers. Runs any MCP server over stdio and asserts on its behavior from
   package:test. Built on dart_mcp.
-version: 0.3.0
+version: 0.3.1
 
 executables:
   mcp_probe:
@@ -14,6 +14,13 @@ topics:
   - ai
   - server
   - conformance
+
+screenshots:
+  - description: >-
+      The harness starts your MCP server as a subprocess, drives it over stdio w
+      ith JSON-RPC, and turns each rule's reply into one finding in a Conformanc
+      eReport.
+    path: doc/architecture.png
 
 environment:
   sdk: ^3.8.0
