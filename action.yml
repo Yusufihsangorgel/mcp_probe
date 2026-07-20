@@ -1,0 +1,54 @@
+name: mcp_probe conformance
+description: >-
+  Run mcp_probe against an MCP server and fail the build if it does not conform
+  to the protocol.
+branding:
+  icon: check-circle
+  color: blue
+
+inputs:
+  command:
+    description: >-
+      The command that launches the MCP server over stdio, for example
+      "dart run bin/server.dart" or "node build/server.js".
+    required: true
+  fail-on:
+    description: >-
+      Fail the build when a finding at or above this severity is present:
+      error, warning, or info.
+    required: false
+    default: error
+  format:
+    description: 'Report format written to the log: markdown or json.'
+    required: false
+    default: markdown
+  version:
+    description: >-
+      The mcp_probe version to activate, as a pub version constraint. Leave
+      empty to activate the latest.
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - uses: dart-lang/setup-dart@v1
+    - name: Activate mcp_probe
+      shell: bash
+      env:
+        MCP_PROBE_VERSION: ${{ inputs.version }}
+      run: dart pub global activate mcp_probe $MCP_PROBE_VERSION
+    - name: Check the server
+      shell: bash
+      # Inputs are passed through the environment, not interpolated into the
+      # script, so a value cannot inject shell. MCP_PROBE_COMMAND is left
+      # unquoted on purpose: it word-splits into the command and its arguments.
+      env:
+        MCP_PROBE_COMMAND: ${{ inputs.command }}
+        MCP_PROBE_FAIL_ON: ${{ inputs.fail-on }}
+        MCP_PROBE_FORMAT: ${{ inputs.format }}
+      run: >-
+        mcp_probe check
+        --fail-on "$MCP_PROBE_FAIL_ON"
+        --format "$MCP_PROBE_FORMAT"
+        $MCP_PROBE_COMMAND

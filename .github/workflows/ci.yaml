@@ -17,3 +17,27 @@ jobs:
       - run: dart format --output=none --set-exit-if-changed .
       - run: dart analyze --fatal-infos
       - run: dart test
+
+  # Exercises the composite action in this repo end to end, so a change that
+  # breaks it fails CI rather than shipping.
+  action:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+      # Resolve the repo so the fixture servers launch cleanly under `dart run`.
+      - run: dart pub get
+      # A conforming server: the action must succeed.
+      - uses: ./
+        with:
+          command: dart run test/fixtures/well_behaved_server.dart
+      # A non-conforming server: the CLI the action wraps must exit non-zero.
+      - name: A broken server must fail the check
+        run: |
+          dart pub global activate --source path .
+          if mcp_probe check dart run test/fixtures/noisy_stdout_server.dart; then
+            echo "expected a non-zero exit for a non-conforming server" >&2
+            exit 1
+          fi

@@ -63,6 +63,28 @@ mcp_probe check --fail-on warning --format json dart run my_server.dart > report
 }
 ```
 
+## In a GitHub Actions workflow
+
+There is a composite action, so gating a pull request on conformance is a few
+lines. It sets up Dart, activates the CLI, and runs the check:
+
+```yaml
+- uses: Yusufihsangorgel/mcp_probe@v0.5.0
+  with:
+    command: dart run bin/server.dart
+    fail-on: warning   # error (default), warning, or info
+    format: markdown   # or json
+```
+
+`command` is the only required input; it is the command that launches your
+server over stdio. The step fails the job when a finding at or above `fail-on`
+is present.
+
+If your server launches with `dart run`, run `dart pub get` earlier in the job.
+`dart run` prints a resolution line to stdout the first time, which would land
+in the server's output; resolving up front keeps the channel clean. A compiled
+server or a Node/Python one has nothing to resolve and needs no such step.
+
 ## Using the harness in tests
 
 Add `mcp_probe` as a dev dependency next to `test`:

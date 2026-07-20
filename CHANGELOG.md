@@ -1,3 +1,18 @@
+## 0.5.0
+
+- A composite GitHub Action, so a repository can gate its pull requests on MCP
+  conformance in a few lines: `uses: Yusufihsangorgel/mcp_probe@v1` with a
+  `command`, and optional `fail-on` and `format`. It sets up Dart, activates the
+  CLI, and runs the check, failing the job when a finding at or above `fail-on`
+  is present. Inputs are passed through the environment rather than interpolated
+  into the shell, so a value cannot inject script. The package's own CI now
+  exercises the action against a conforming and a non-conforming fixture on
+  every push, so a change that breaks it fails CI.
+- README notes a real `dart run` gotcha: `dart run` prints a resolution line to
+  stdout the first time, which pollutes a server launched that way, so run
+  `dart pub get` before checking such a server. A compiled, Node or Python
+  server has nothing to resolve.
+
 ## 0.4.0
 
 - Machine-readable output and a configurable gate, which is what makes the CLI a
