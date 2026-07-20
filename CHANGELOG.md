@@ -1,3 +1,11 @@
+## 0.3.3
+
+- Install instructions now say `pub add` instead of pinning a version. The
+  pinned number was stale by several releases and would have been stale again
+  after the next one: the README ships frozen in the archive, so a hand-edited
+  version line is wrong the moment anything is published. This one cannot go
+  out of date.
+
 ## 0.3.2
 
 - `example/probe_demo.dart` prints a real report without a server of your own.

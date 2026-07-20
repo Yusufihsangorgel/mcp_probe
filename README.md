@@ -46,10 +46,8 @@ step.
 
 Add `mcp_probe` as a dev dependency next to `test`:
 
-```yaml
-dev_dependencies:
-  mcp_probe: ^0.1.1
-  test: ^1.25.0
+```sh
+dart pub add dev:mcp_probe dev:test
 ```
 
 Then start your server once per suite and assert on it:
