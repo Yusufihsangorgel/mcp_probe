@@ -109,10 +109,7 @@ Summary: 1 error(s), 1 warning(s), 1 info.
   });
 
   test('toJson omits server fields that were never learned', () {
-    const partial = ConformanceReport(
-      command: 'x',
-      findings: [],
-    );
+    const partial = ConformanceReport(command: 'x', findings: []);
     final json = partial.toJson();
     expect(json.containsKey('serverName'), isFalse);
     expect(json['summary'], {'error': 0, 'warning': 0, 'info': 0});

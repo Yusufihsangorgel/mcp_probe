@@ -43,8 +43,10 @@ Future<void> main(List<String> argv) async {
       if (i + 1 >= rest.length) return _fail('--fail-on needs a value');
       final level = _severity(rest[i + 1]);
       if (level == null) {
-        return _fail('--fail-on must be error, warning or info, '
-            'got "${rest[i + 1]}"');
+        return _fail(
+          '--fail-on must be error, warning or info, '
+          'got "${rest[i + 1]}"',
+        );
       }
       failOn = level;
       i += 2;
@@ -72,15 +74,18 @@ Future<void> main(List<String> argv) async {
     stdout.writeln(const JsonEncoder.withIndent('  ').convert(report.toJson()));
   } else {
     for (final finding in report.findings) {
-      final sink =
-          finding.severity == ConformanceSeverity.error ? stderr : stdout;
+      final sink = finding.severity == ConformanceSeverity.error
+          ? stderr
+          : stdout;
       sink.writeln(finding);
     }
     stdout
       ..writeln('')
-      ..writeln('$command: ${report.findings.length} checks, '
-          '${report.errors.length} error(s), '
-          '${report.warnings.length} warning(s)');
+      ..writeln(
+        '$command: ${report.findings.length} checks, '
+        '${report.errors.length} error(s), '
+        '${report.warnings.length} warning(s)',
+      );
   }
 
   exitCode = _shouldFail(report, failOn) ? 1 : 0;

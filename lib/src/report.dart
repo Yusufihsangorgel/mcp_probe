@@ -35,10 +35,10 @@ class ConformanceFinding {
 
   /// This finding as a JSON-serializable map.
   Map<String, Object?> toJson() => {
-        'severity': severity.name,
-        'rule': rule,
-        'message': message,
-      };
+    'severity': severity.name,
+    'rule': rule,
+    'message': message,
+  };
 }
 
 /// The result of running [checkServer] against an MCP server.
@@ -130,17 +130,17 @@ class ConformanceReport {
   /// and a summary count per severity, so a consumer can gate on
   /// `summary.error` without re-parsing the findings.
   Map<String, Object?> toJson() => {
-        'command': command,
-        if (serverName != null) 'serverName': serverName,
-        if (serverVersion != null) 'serverVersion': serverVersion,
-        if (protocolVersion != null) 'protocolVersion': protocolVersion,
-        'summary': {
-          'error': errors.length,
-          'warning': warnings.length,
-          'info': infos.length,
-        },
-        'findings': [for (final finding in findings) finding.toJson()],
-      };
+    'command': command,
+    if (serverName != null) 'serverName': serverName,
+    if (serverVersion != null) 'serverVersion': serverVersion,
+    if (protocolVersion != null) 'protocolVersion': protocolVersion,
+    'summary': {
+      'error': errors.length,
+      'warning': warnings.length,
+      'info': infos.length,
+    },
+    'findings': [for (final finding in findings) finding.toJson()],
+  };
 
   static String _escape(String text) =>
       text.replaceAll('|', r'\|').replaceAll('\n', ' ');

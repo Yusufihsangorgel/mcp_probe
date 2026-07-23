@@ -220,13 +220,13 @@ class McpServerHarness {
   /// returns the combined list, so a conformance check never validates only the
   /// first page and calls a paginated server green on the strength of it.
   Future<ListToolsResult> listTools() => _paginate<ListToolsResult, Tool>(
-        description: 'tools/list',
-        fetchPage: (cursor) =>
-            connection.listTools(ListToolsRequest(cursor: cursor)),
-        itemsOf: (page) => page.tools,
-        cursorOf: (page) => page.nextCursor,
-        combine: (tools) => ListToolsResult(tools: tools),
-      );
+    description: 'tools/list',
+    fetchPage: (cursor) =>
+        connection.listTools(ListToolsRequest(cursor: cursor)),
+    itemsOf: (page) => page.tools,
+    cursorOf: (page) => page.nextCursor,
+    combine: (tools) => ListToolsResult(tools: tools),
+  );
 
   /// Follows a paginated list request to its end, returning every item across
   /// all pages combined into a single [result].
@@ -267,7 +267,8 @@ class McpServerHarness {
   );
 
   /// Lists the resources exposed by the server.
-  Future<ListResourcesResult> listResources() => _paginate<ListResourcesResult, Resource>(
+  Future<ListResourcesResult> listResources() =>
+      _paginate<ListResourcesResult, Resource>(
         description: 'resources/list',
         fetchPage: (cursor) =>
             connection.listResources(ListResourcesRequest(cursor: cursor)),
@@ -283,7 +284,8 @@ class McpServerHarness {
   );
 
   /// Lists the prompts exposed by the server.
-  Future<ListPromptsResult> listPrompts() => _paginate<ListPromptsResult, Prompt>(
+  Future<ListPromptsResult> listPrompts() =>
+      _paginate<ListPromptsResult, Prompt>(
         description: 'prompts/list',
         fetchPage: (cursor) =>
             connection.listPrompts(ListPromptsRequest(cursor: cursor)),

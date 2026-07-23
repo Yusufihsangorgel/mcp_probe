@@ -19,7 +19,10 @@ void main() {
 base class PaginatedToolsServer extends MCPServer with ToolsSupport {
   PaginatedToolsServer(super.channel)
     : super.fromStreamChannel(
-        implementation: Implementation(name: 'paginated_tools', version: '1.0.0'),
+        implementation: Implementation(
+          name: 'paginated_tools',
+          version: '1.0.0',
+        ),
         instructions: 'Fixture server that paginates tools/list.',
       );
 
