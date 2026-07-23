@@ -1,3 +1,13 @@
+## 0.5.1
+
+- Fix `utilities/ping` ignoring the caller's configured `timeout`. `_checkPing`
+  called `connection.ping()` with no arguments, which falls back to the
+  1-second default on `dart_mcp`'s `ServerConnection.ping`, so any server
+  whose ping round-trip took longer than 1 second failed this check even when
+  it answered well inside the `timeout` passed to `checkServer` or
+  `McpServerHarness.start`. It now passes `harness.timeout` through, matching
+  every other request the harness makes.
+
 ## 0.5.0
 
 - A composite GitHub Action, so a repository can gate its pull requests on MCP

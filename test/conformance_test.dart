@@ -149,6 +149,22 @@ void main() {
     expect(errorRules, contains(ConformanceRules.methodNotFound));
   });
 
+  test('honors the configured timeout when checking ping', () async {
+    // The server answers ping after 1.5 seconds, longer than the 1-second
+    // default baked into `ServerConnection.ping` but well inside the 5-second
+    // timeout configured here.
+    final report = await checkFixture(
+      'slow_ping_server',
+      timeout: const Duration(seconds: 5),
+    );
+    expect(report.errors, isEmpty);
+    final pingFindings = [
+      for (final finding in report.findings)
+        if (finding.rule == ConformanceRules.pingResponds) finding,
+    ];
+    expect(pingFindings.single.severity, ConformanceSeverity.info);
+  });
+
   test('reports unsupported protocol versions instead of throwing', () async {
     final report = await checkFixture('bad_protocol_version_server');
     expect(report.hasErrors, isTrue);

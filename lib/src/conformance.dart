@@ -394,7 +394,7 @@ Future<void> _checkPing(McpServerHarness harness, _AddFinding add) async {
   // timeout and throws only if the server answers with a protocol error.
   final bool responded;
   try {
-    responded = await harness.connection.ping();
+    responded = await harness.connection.ping(timeout: harness.timeout);
   } on RpcException catch (e) {
     add(
       ConformanceSeverity.error,
