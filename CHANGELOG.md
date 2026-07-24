@@ -1,3 +1,13 @@
+## 0.9.0
+
+- **Fix the version this harness reports to servers.** `harnessVersion` was
+  still `0.1.0` — it had not moved through seven releases — and it is what every
+  server sees as the connecting client's version, and what a conformance report
+  names. Anyone reading their server logs to see which client probed them got the
+  wrong answer. It now tracks the package version, and a test compares the two so
+  it cannot drift again: nothing had ever compared that constant to anything,
+  which is why it went stale silently.
+
 ## 0.8.0
 
 - **Fix an unhandled async error that could take down the caller's isolate.**
