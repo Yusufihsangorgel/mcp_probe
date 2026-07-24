@@ -1,3 +1,26 @@
+## 0.8.0
+
+- **Fix an unhandled async error that could take down the caller's isolate.**
+  When a server process exits immediately — a wrong command, a binary that
+  crashes on startup, a server that rejects its arguments — the next write to
+  its stdin breaks the pipe. `start` reported the failure correctly as an
+  `McpHandshakeException`, but the broken pipe surfaced separately as a
+  `SocketException` that nothing observed, so a caller who caught the documented
+  exception could still lose the isolate to an unhandled error a moment later.
+  The harness now writes through a sink it owns and absorbs the broken pipe
+  there, leaving exactly one catchable failure.
+
+  Found by running the failure paths inside a guarded zone rather than reading
+  them: the exception at the call site looked right, which is why an ordinary
+  test could not see the problem. `test/dead_server_test.dart` now watches the
+  zone for all three cases (a server that exits at once, a command that does not
+  exist, and `checkServer` against a dead server).
+
+Still pinned to `dart_mcp` 0.5.x. Because this package's API hands back
+`dart_mcp` types — the right shape for a conformance prober — a 1.0.0 here has
+to wait for that package to stabilise, or freezing would guarantee a major bump
+the moment it changes.
+
 ## 0.7.0
 
 - **Stop shipping the test runner to consumers.** `package:test` was a runtime

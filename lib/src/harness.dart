@@ -145,13 +145,35 @@ final class McpServerHarness {
           return false;
         });
 
+    // A server that has already exited — or exits during the handshake —
+    // breaks the pipe on the next write to its stdin, and that failure arrives
+    // asynchronously rather than from anything awaited here. Handed the raw
+    // stdin, the channel leaves it unobserved and it takes down the caller's
+    // isolate as an unhandled SocketException, even though the handshake
+    // failure itself is reported properly as an McpHandshakeException. Write
+    // through a sink that cannot fail instead, and swallow the broken pipe
+    // here: a dead server is exactly what the handshake path already reports.
+    final outbound = StreamController<List<int>>();
+    unawaited(() async {
+      try {
+        await process.stdin.addStream(outbound.stream);
+      } catch (_) {
+        // Broken pipe: the server is gone. Reported through the handshake.
+      }
+      try {
+        await process.stdin.close();
+      } catch (_) {
+        // Closing a pipe whose far end is already gone.
+      }
+    }());
+
     final client = MCPClient(
       clientInfo ?? Implementation(name: 'mcp_probe', version: harnessVersion),
     );
     final connection = client.connectServer(
       stdioChannel(
         input: protocolLines.map((line) => utf8.encode('$line\n')),
-        output: process.stdin,
+        output: outbound.sink,
       ),
     );
 
