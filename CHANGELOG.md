@@ -1,3 +1,19 @@
+## 0.7.0
+
+- **Stop shipping the test runner to consumers.** `package:test` was a runtime
+  dependency because `lib/src/matchers.dart` imported it — for one function,
+  `fail()`. `package:test` pulls 25 direct dependencies of its own, including
+  `analyzer`, `shelf`, `coverage` and `node_preamble`, and every one of them
+  landed in the dependency graph of anything that depended on this package.
+  The import is now `package:matcher/expect.dart`, which exports the same
+  `fail()` and brings five small packages, all of which `test` already depends
+  on. Measured on a scratch project depending on this package: **50 resolved
+  packages before, 16 after.** `test` moved to `dev_dependencies`, where it
+  belongs.
+
+  This is breaking only for a consumer that was relying on getting `test`
+  transitively from here; declare it in your own `dev_dependencies` instead.
+
 ## 0.6.0
 
 - Seal the exported types. `ConformanceFinding`, `ConformanceReport`,

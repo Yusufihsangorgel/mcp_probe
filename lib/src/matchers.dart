@@ -1,5 +1,5 @@
 import 'package:dart_mcp/client.dart';
-import 'package:test/test.dart';
+import 'package:matcher/expect.dart';
 
 import 'harness.dart';
 
