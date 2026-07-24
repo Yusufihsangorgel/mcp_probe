@@ -23,7 +23,7 @@ const String harnessVersion = '0.1.0';
 /// `tearDownAll`. It closes the connection and guarantees the child process
 /// is dead, escalating to SIGTERM and then SIGKILL if the server does not
 /// exit on its own.
-class McpServerHarness {
+final class McpServerHarness {
   McpServerHarness._(
     this._process,
     this._client,

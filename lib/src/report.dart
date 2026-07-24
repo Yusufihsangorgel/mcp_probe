@@ -12,7 +12,7 @@ enum ConformanceSeverity {
 }
 
 /// A single observation produced by a conformance rule.
-class ConformanceFinding {
+final class ConformanceFinding {
   /// Creates a finding for [rule] with the given [severity] and [message].
   const ConformanceFinding({
     required this.severity,
@@ -46,7 +46,7 @@ class ConformanceFinding {
 /// Findings appear in the order the checks ran. Passing checks are recorded
 /// as [ConformanceSeverity.info] findings so the report shows what was
 /// actually covered, not only what failed.
-class ConformanceReport {
+final class ConformanceReport {
   /// Creates a report for the server started by [command].
   const ConformanceReport({
     required this.command,

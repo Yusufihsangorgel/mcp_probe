@@ -1,3 +1,12 @@
+## 0.6.0
+
+- Seal the exported types. `ConformanceFinding`, `ConformanceReport`,
+  `McpServerHarness` and `McpHandshakeException` carried no class modifier, so
+  a later freeze would have made every field added to a report a breaking
+  change for anyone who had subclassed it. None is meant to be subtyped and
+  nothing in the package, its tests or its example does. `ConformanceRules` was
+  already `abstract final`. No behaviour change.
+
 ## 0.5.1
 
 - Fix `utilities/ping` ignoring the caller's configured `timeout`. `_checkPing`

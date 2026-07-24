@@ -6,7 +6,7 @@ library;
 ///
 /// Thrown by [McpServerHarness.start]. The harness kills the server process
 /// before throwing, so a failed start never leaks a child process.
-class McpHandshakeException implements Exception {
+final class McpHandshakeException implements Exception {
   /// Creates a handshake exception.
   McpHandshakeException(
     this.message, {
