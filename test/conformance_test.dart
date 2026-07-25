@@ -180,4 +180,16 @@ void main() {
     expect(report.errors.single.rule, ConformanceRules.handshake);
     expect(report.serverName, isNull);
   });
+
+  test('names a repeated cursor rather than just running out of pages', () async {
+    // A server that hands back the cursor it was given is not paginating, it
+    // is ignoring the parameter. The page-count backstop caught the symptom;
+    // the report should name the cause.
+    final report = await checkFixture('stuck_cursor_server');
+    final finding = report.findings
+        .firstWhere((f) => f.rule == 'capabilities/tools-listable');
+    expect(finding.severity, ConformanceSeverity.error);
+    expect(finding.message, contains('a second time'));
+    expect(finding.message, contains('not advancing'));
+  });
 }

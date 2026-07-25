@@ -1,3 +1,14 @@
+## Unreleased
+
+- Name a repeated pagination cursor instead of only reporting that the page
+  count ran out. A server that hands back the cursor it was given is not
+  paginating, it is ignoring the parameter — the usual shape of a server that
+  wires up `nextCursor` without implementing it. The 10000-page backstop caught
+  the symptom and reported "did not terminate after 10000 pages"; the report
+  now says which cursor repeated and that the server is not advancing. For a
+  tool whose product is the diagnosis, the difference is the whole point. The
+  backstop stays for a server that keeps minting fresh cursors.
+
 ## 0.9.0
 
 - **Fix the version this harness reports to servers.** `harnessVersion` was

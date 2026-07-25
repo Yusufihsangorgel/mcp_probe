@@ -265,13 +265,25 @@ final class McpServerHarness {
   }) async {
     final items = <T>[];
     Cursor? cursor;
+    final seen = <String>{};
     var pages = 0;
     while (true) {
       final page = await _request(description, fetchPage(cursor));
       items.addAll(itemsOf(page));
       cursor = cursorOf(page);
       if (cursor == null) break;
-      // Guard against a server that keeps handing back a cursor forever.
+      // A server that hands back a cursor it has already used is not
+      // paginating, it is ignoring the parameter — the common shape of a
+      // server that declares pagination without implementing it. Saying so
+      // is worth more than the page-count backstop below, which only reports
+      // that something went on too long.
+      if (!seen.add(cursor.toString())) {
+        throw StateError(
+          '$description returned the cursor "$cursor" a second time: the '
+          'server is not advancing, so following it would never end',
+        );
+      }
+      // Backstop for a server that keeps minting fresh cursors forever.
       if (++pages > 10000) {
         throw StateError('$description did not terminate after 10000 pages');
       }
