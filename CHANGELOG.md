@@ -1,4 +1,4 @@
-## Unreleased
+## 0.9.1
 
 - **Declare the platforms the harness can actually run on.** The pubspec
   carried no `platforms:` block, so pub.dev inferred the full set and
