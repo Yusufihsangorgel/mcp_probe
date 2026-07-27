@@ -1,5 +1,16 @@
 ## Unreleased
 
+- **Declare the platforms the harness can actually run on.** The pubspec
+  carried no `platforms:` block, so pub.dev inferred the full set and
+  advertised iOS. The harness starts the server under test with
+  `Process.start`, which iOS refuses outright: built against an iPhone 17 Pro
+  simulator on iOS 26.5, the run raised `ProcessException: Starting new
+  processes is not supported on iOS` from `McpServerHarness.start`. Android,
+  Linux, macOS and Windows are now declared and iOS is not; web is excluded
+  too, having no `dart:io`. Android was checked on a live arm64 Android 15
+  image with SELinux enforcing, where the handshake and the conformance rules
+  pass.
+
 - Name a repeated pagination cursor instead of only reporting that the page
   count ran out. A server that hands back the cursor it was given is not
   paginating, it is ignoring the parameter — the usual shape of a server that

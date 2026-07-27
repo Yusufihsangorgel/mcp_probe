@@ -22,6 +22,17 @@ screenshots:
       eReport.
     path: doc/architecture.png
 
+# The harness starts the MCP server under test with Process.start, so it runs
+# only where a Dart process may spawn a child. iOS forbids that outright
+# ("Starting new processes is not supported on iOS"), and web has no dart:io,
+# so neither is listed. Without this block pub.dev infers every platform and
+# advertises an iOS support that cannot work.
+platforms:
+  android:
+  linux:
+  macos:
+  windows:
+
 environment:
   sdk: ^3.8.0
 
