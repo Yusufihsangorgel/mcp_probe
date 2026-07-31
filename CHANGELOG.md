@@ -1,3 +1,20 @@
+## 0.9.2
+
+- **Fix the version this harness reports to servers.** `harnessVersion` was
+  left at `0.9.0` when 0.9.1 went out, so every server saw the wrong client
+  version in its logs and every conformance report named it. The test written
+  to catch exactly this drift was red at publish time — the version bump is
+  what turns it red, and it was run before the bump rather than after.
+
+- **Say who is behind when the protocol versions do not match.** A server that
+  speaks only a newer revision answers `initialize` with it, which the
+  specification asks it to do; the report called that
+  "unsupported protocol version" and read as the server's fault, sending its
+  author to look for a defect that was not there. The finding now names both
+  sides — the version the server returned and the newest this harness speaks —
+  and says plainly that it could not assess the server. The check still stops
+  there, because a session that never opened cannot be probed further.
+
 ## 0.9.1
 
 - **Declare the platforms the harness can actually run on.** The pubspec

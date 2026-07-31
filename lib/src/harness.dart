@@ -12,7 +12,7 @@ import 'exceptions.dart';
 /// Kept in step with the package version by a test, because a server that logs
 /// its clients — or a conformance report that names one — is only useful if the
 /// version is the real one.
-const String harnessVersion = '0.9.0';
+const String harnessVersion = '0.9.2';
 
 /// Runs an MCP server as a child process and talks to it over stdio using the
 /// `dart_mcp` client, so tests can exercise the server end to end.
@@ -220,9 +220,17 @@ final class McpServerHarness {
     if (version == null || !version.isSupported) {
       // dart_mcp already shut the connection down in this case.
       await _forceStop(process, connection);
+      // Name both sides. A server that speaks only a newer revision answers
+      // with it, which the specification asks it to do, and the mismatch is
+      // then this harness being behind rather than the server misbehaving.
+      // Reporting it as the server's fault sends its author looking for a
+      // defect that is not there.
       fail(
-        'server answered initialize with unsupported protocol version '
-        '"${rawResult['protocolVersion']}"',
+        'cannot assess this server: it answered initialize with protocol '
+        'version "${rawResult['protocolVersion']}", and this harness speaks '
+        'up to ${ProtocolVersion.latestSupported.versionString}. Either the '
+        'server is on a newer revision than mcp_probe supports, or the '
+        'version it returned is not one it should have offered.',
         rawInitializeResult: rawResult,
       );
     }
