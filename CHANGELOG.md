@@ -1,3 +1,14 @@
+## 0.9.3
+
+- The example runs without an argument. It used to print a usage line and exit
+  64 unless you already had an MCP server command, which is the first thing
+  anyone following the Example tab on pub.dev would hit. It now probes
+  `test/fixtures/well_behaved_server.dart`, which ships in the archive, and
+  prints a real report — handshake, negotiated protocol version, server info,
+  four tools, twelve info-level findings and no errors. Seeing the output is
+  most of what decides whether this package is worth adding. Passing a command
+  works exactly as before.
+
 ## 0.9.2
 
 - **Fix the version this harness reports to servers.** `harnessVersion` was
