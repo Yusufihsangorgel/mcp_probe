@@ -12,7 +12,7 @@ import 'exceptions.dart';
 /// Kept in step with the package version by a test, because a server that logs
 /// its clients — or a conformance report that names one — is only useful if the
 /// version is the real one.
-const String harnessVersion = '0.9.2';
+const String harnessVersion = '0.9.4';
 
 /// Runs an MCP server as a child process and talks to it over stdio using the
 /// `dart_mcp` client, so tests can exercise the server end to end.

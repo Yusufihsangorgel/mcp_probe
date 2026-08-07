@@ -1,3 +1,11 @@
+## 0.9.4
+
+- **Fix `harnessVersion`, which 0.9.3 shipped stale.** It still read `0.9.2`,
+  so a server talking to 0.9.3 was told the client was 0.9.2 — and
+  `test/harness_version_test.dart`, which exists precisely to catch this, was
+  red in the published archive. The constant was not updated with the pubspec
+  and the suite was not re-run after the bump. 0.9.3 is superseded; use this.
+
 ## 0.9.3
 
 - The example runs without an argument. It used to print a usage line and exit
