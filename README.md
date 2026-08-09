@@ -2,33 +2,6 @@
 
 ![mcp_probe banner](https://raw.githubusercontent.com/Yusufihsangorgel/mcp_probe/main/doc/banner.png)
 
-Test harness and conformance checks for MCP servers, built on the official
-[dart_mcp](https://pub.dev/packages/dart_mcp) client.
-
-There are plenty of packages for writing MCP servers. This one is for testing
-them. It runs any MCP server you can start as a command, over stdio, and lets
-you assert on its behavior from `package:test`:
-
-- `McpServerHarness` starts the server as a child process, performs the MCP
-  initialize handshake, and exposes the tool, resource, and prompt APIs with
-  a per-request timeout and guaranteed process cleanup.
-- `checkServer` runs a fixed set of conformance rules against a server
-  command and returns a `ConformanceReport` with error, warning, and info
-  findings, plus a `toMarkdown()` renderer.
-- `expectToolExists`, `expectToolCallSucceeds`, `expectToolCallFails`, and
-  `expectResourceExists` are ready-made expectation helpers, exported from
-  `package:mcp_probe/testing.dart`. `example/server_test.dart` is a working
-  test file that uses all four against a bundled server; copy it and change
-  the command.
-
-The server under test does not have to be written in Dart. Anything that
-speaks MCP over stdio works: a Dart script, `npx -y some-server`, a Python
-script, a compiled binary. On Windows, launch batch-file based tools such as
-npx by their full script name (`npx.cmd`), since `Process.start` does not
-resolve `.cmd` files by their bare name.
-
-![Diagram: the harness drives an MCP server over stdio and turns each reply into a ConformanceReport](https://raw.githubusercontent.com/Yusufihsangorgel/mcp_probe/main/doc/architecture.png)
-
 ## Why this instead of what you already have
 
 **Instead of a hand-rolled stdio client.** Starting a server with
@@ -62,6 +35,33 @@ library file says it exists "without exposing an additional public API"
 Skip it if the server under test is a Dart `MCPServer` in the same repo that you
 can drive in-process over a stream channel, since then the subprocess and the
 stdio transport are cost with no coverage behind them.
+
+Test harness and conformance checks for MCP servers, built on the official
+[dart_mcp](https://pub.dev/packages/dart_mcp) client.
+
+There are plenty of packages for writing MCP servers. This one is for testing
+them. It runs any MCP server you can start as a command, over stdio, and lets
+you assert on its behavior from `package:test`:
+
+- `McpServerHarness` starts the server as a child process, performs the MCP
+  initialize handshake, and exposes the tool, resource, and prompt APIs with
+  a per-request timeout and guaranteed process cleanup.
+- `checkServer` runs a fixed set of conformance rules against a server
+  command and returns a `ConformanceReport` with error, warning, and info
+  findings, plus a `toMarkdown()` renderer.
+- `expectToolExists`, `expectToolCallSucceeds`, `expectToolCallFails`, and
+  `expectResourceExists` are ready-made expectation helpers, exported from
+  `package:mcp_probe/testing.dart`. `example/server_test.dart` is a working
+  test file that uses all four against a bundled server; copy it and change
+  the command.
+
+The server under test does not have to be written in Dart. Anything that
+speaks MCP over stdio works: a Dart script, `npx -y some-server`, a Python
+script, a compiled binary. On Windows, launch batch-file based tools such as
+npx by their full script name (`npx.cmd`), since `Process.start` does not
+resolve `.cmd` files by their bare name.
+
+![Diagram: the harness drives an MCP server over stdio and turns each reply into a ConformanceReport](https://raw.githubusercontent.com/Yusufihsangorgel/mcp_probe/main/doc/architecture.png)
 
 ## Command line
 

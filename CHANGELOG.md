@@ -1,3 +1,10 @@
+## 0.10.1
+
+- The section on why to reach for this rather than the alternative now sits
+  directly under the recording, instead of below a long explanation. Someone
+  deciding whether to install it reads the choice before the mechanics, and
+  the section was landing past the fold where it answered nobody.
+
 ## 0.10.0
 
 - The README now answers, in its first screen, why to reach for this rather
