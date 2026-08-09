@@ -71,7 +71,7 @@ A composite action gates a pull request on conformance in a few lines. It sets
 up Dart, activates the CLI, and runs the check:
 
 ```yaml
-- uses: Yusufihsangorgel/mcp_probe@v0.5.0
+- uses: Yusufihsangorgel/mcp_probe@v0.9.8
   with:
     command: dart run bin/server.dart
     fail-on: warning   # error (default), warning, or info
@@ -79,8 +79,13 @@ up Dart, activates the CLI, and runs the check:
 ```
 
 `command` is the only required input; it is the command that launches your
-server over stdio. The step fails the job when a finding at or above `fail-on`
-is present.
+server over stdio, and it is passed through whole, so `dart run` and
+`npx -y some-server` both work. The step fails the job when a finding at or
+above `fail-on` is present.
+
+Checked against the servers in this repository: the well-behaved fixture exits
+0 with 12 checks and no findings, and the one that logs to stdout exits 1 on
+the same 12.
 
 If your server launches with `dart run`, run `dart pub get` earlier in the job.
 `dart run` prints a resolution line to stdout the first time, which would land
