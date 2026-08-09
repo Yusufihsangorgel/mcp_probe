@@ -39,7 +39,7 @@ mcp_probe check node build/server.js --flag
 ```
 
 It runs the server over stdio, completes the handshake, prints each finding, and
-exits non-zero if any check reports an error, so it drops straight into a CI
+exits non-zero if any check reports an error, which drops it straight into a CI
 step.
 
 Two flags make it a real gate. `--format json` prints the report as JSON, with a
@@ -65,8 +65,8 @@ mcp_probe check --fail-on warning --format json dart run my_server.dart > report
 
 ## In a GitHub Actions workflow
 
-There is a composite action, so gating a pull request on conformance is a few
-lines. It sets up Dart, activates the CLI, and runs the check:
+A composite action gates a pull request on conformance in a few lines. It sets
+up Dart, activates the CLI, and runs the check:
 
 ```yaml
 - uses: Yusufihsangorgel/mcp_probe@v0.5.0
@@ -177,7 +177,7 @@ server.
 | `jsonrpc/method-not-found` | error or warning | An unknown method is answered with JSON-RPC error -32601. |
 | `stdio/clean-stdout` | error | The server writes nothing but protocol messages to stdout. |
 
-Passing checks are recorded as info findings, so the report shows what was
+Passing checks are recorded as info findings; the report then shows what was
 covered rather than only what failed.
 
 ### About `callTools`

@@ -15,10 +15,8 @@ topics:
   - conformance
 
 screenshots:
-  - description: >-
-      The harness starts your MCP server as a subprocess, drives it over stdio w
-      ith JSON-RPC, and turns each rule's reply into one finding in a Conformanc
-      eReport.
+  - description: |-
+      The harness starts your MCP server as a subprocess, drives it over stdio with JSON-RPC, and turns each rule's reply into one finding in a ConformanceReport.
     path: doc/architecture.png
 
 # The harness starts the MCP server under test with Process.start, so it runs
