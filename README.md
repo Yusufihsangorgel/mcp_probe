@@ -17,7 +17,9 @@ you assert on its behavior from `package:test`:
   findings, plus a `toMarkdown()` renderer.
 - `expectToolExists`, `expectToolCallSucceeds`, `expectToolCallFails`, and
   `expectResourceExists` are ready-made expectation helpers, exported from
-  `package:mcp_probe/testing.dart`.
+  `package:mcp_probe/testing.dart`. `example/server_test.dart` is a working
+  test file that uses all four against a bundled server; copy it and change
+  the command.
 
 The server under test does not have to be written in Dart. Anything that
 speaks MCP over stdio works: a Dart script, `npx -y some-server`, a Python

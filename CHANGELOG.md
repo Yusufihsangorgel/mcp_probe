@@ -1,3 +1,16 @@
+## 0.9.6
+
+- Add `example/server_test.dart`, a working test file rather than a sketch of
+  one. This package is a test harness, and until now nothing in the examples
+  wrote a test: `probe_demo.dart` prints a conformance report, which shows the
+  command-line half and none of the part you would actually put in your repo.
+  The new file starts the bundled fixture server and uses all four expectation
+  helpers, then runs the conformance suite from inside `dart test` and passes
+  the rendered report as the failure reason. Five tests, about a second, and
+  `dart test example/server_test.dart` runs it as it ships.
+- The README and the example README point at it. The bullet listing the
+  expectation helpers had named four functions with nowhere to see them used.
+
 ## 0.9.5
 
 Packaging only. Nothing in the library changed.

@@ -108,3 +108,27 @@ actually answers its list call, the shape of each tool's name and input schema,
 an optional `tools/call` smoke test, `ping`, the JSON-RPC error for an unknown
 method, and clean stdout. `ConformanceRules` names them all as constants, so a
 report can be filtered down to the ones you care about.
+
+## Testing your own server
+
+```
+dart test example/server_test.dart
+```
+
+`example/server_test.dart` is a real test file rather than a sketch of one.
+It starts the bundled fixture server, then uses the four expectation helpers
+from `package:mcp_probe/testing.dart`:
+
+```dart
+await expectToolExists(harness, 'echo');
+await expectToolCallSucceeds(harness, 'echo', arguments: {'text': 'hello'});
+await expectToolCallFails(harness, 'fail_tool');
+await expectResourceExists(harness, 'probe://greeting');
+```
+
+The last test runs the whole conformance suite from inside `dart test` and
+prints the report as the failure reason when a rule breaks, which is what turns
+a red CI run into something you can read.
+
+Copy the file into your own `test/` directory and change the command the
+harness starts. Five tests, about a second.
