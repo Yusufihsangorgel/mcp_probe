@@ -45,7 +45,7 @@ step.
 Two flags make it a real gate. `--format json` prints the report as JSON, with a
 `summary` count per severity and the full findings list, for a pipeline or a
 dashboard that wants structured output. `--fail-on warning` (or `info`) lowers
-the bar for a non-zero exit, so a build fails on a warning, not only an error.
+the bar for a non-zero exit, so a warning fails the build the way an error does.
 
 ```sh
 # Fail the build on any warning, and capture the machine-readable report.

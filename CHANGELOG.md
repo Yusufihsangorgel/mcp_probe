@@ -1,7 +1,24 @@
+## 0.9.5
+
+Packaging only. Nothing in the library changed.
+
+- Keep the compiled CLI out of the published archive. This package declares
+  an executable, and `dart build cli` writes a 5 MB binary to `build/`, a
+  directory `.gitignore` did not list. Measured on this machine: with that
+  directory present, `dart pub publish --dry-run` put the binary in the package
+  and reported a 2 MB compressed archive; with the directory ignored and the
+  binary still on disk, the same command reports just over 300 KB. The 0.9.4
+  archive on pub.dev is clean, checked by listing it, because no one had run
+  `dart build cli` in the tree it was published from. The defect was latent
+  rather than shipped, and the next publish from a tree where that command had
+  been run would have carried the binary.
+- `harnessVersion` reads `0.9.5`, checked by `test/harness_version_test.dart`
+  after the bump rather than before it.
+
 ## 0.9.4
 
 - **Fix `harnessVersion`, which 0.9.3 shipped stale.** It still read `0.9.2`,
-  so a server talking to 0.9.3 was told the client was 0.9.2 — and
+  so a server talking to 0.9.3 was told the client was 0.9.2, and
   `test/harness_version_test.dart`, which exists precisely to catch this, was
   red in the published archive. The constant was not updated with the pubspec
   and the suite was not re-run after the bump. 0.9.3 is superseded; use this.
@@ -12,7 +29,7 @@
   64 unless you already had an MCP server command, which is the first thing
   anyone following the Example tab on pub.dev would hit. It now probes
   `test/fixtures/well_behaved_server.dart`, which ships in the archive, and
-  prints a real report — handshake, negotiated protocol version, server info,
+  prints a real report: handshake, negotiated protocol version, server info,
   four tools, twelve info-level findings and no errors. Seeing the output is
   most of what decides whether this package is worth adding. Passing a command
   works exactly as before.
@@ -22,7 +39,7 @@
 - **Fix the version this harness reports to servers.** `harnessVersion` was
   left at `0.9.0` when 0.9.1 went out, so every server saw the wrong client
   version in its logs and every conformance report named it. The test written
-  to catch exactly this drift was red at publish time — the version bump is
+  to catch exactly this drift was red at publish time: the version bump is
   what turns it red, and it was run before the bump rather than after.
 
 - **Say who is behind when the protocol versions do not match.** A server that
@@ -30,14 +47,14 @@
   specification asks it to do; the report called that
   "unsupported protocol version" and read as the server's fault, sending its
   author to look for a defect that was not there. The finding now names both
-  sides — the version the server returned and the newest this harness speaks —
+  sides (the version the server returned and the newest this harness speaks)
   and says plainly that it could not assess the server. The check still stops
   there, because a session that never opened cannot be probed further.
 
 ## 0.9.1
 
-- **Declare the platforms the harness can actually run on.** The pubspec
-  carried no `platforms:` block, so pub.dev inferred the full set and
+- **Declare the platforms the harness can actually run on.** With no
+  `platforms:` block in the pubspec, pub.dev inferred the full set and
   advertised iOS. The harness starts the server under test with
   `Process.start`, which iOS refuses outright: built against an iPhone 17 Pro
   simulator on iOS 26.5, the run raised `ProcessException: Starting new
@@ -49,7 +66,7 @@
 
 - Name a repeated pagination cursor instead of only reporting that the page
   count ran out. A server that hands back the cursor it was given is not
-  paginating, it is ignoring the parameter — the usual shape of a server that
+  paginating, it is ignoring the parameter, the usual shape of a server that
   wires up `nextCursor` without implementing it. The 10000-page backstop caught
   the symptom and reported "did not terminate after 10000 pages"; the report
   now says which cursor repeated and that the server is not advancing. For a
@@ -59,7 +76,7 @@
 ## 0.9.0
 
 - **Fix the version this harness reports to servers.** `harnessVersion` was
-  still `0.1.0` — it had not moved through seven releases — and it is what every
+  still `0.1.0` (it had not moved through seven releases), and it is what every
   server sees as the connecting client's version, and what a conformance report
   names. Anyone reading their server logs to see which client probed them got the
   wrong answer. It now tracks the package version, and a test compares the two so
@@ -69,8 +86,8 @@
 ## 0.8.0
 
 - **Fix an unhandled async error that could take down the caller's isolate.**
-  When a server process exits immediately — a wrong command, a binary that
-  crashes on startup, a server that rejects its arguments — the next write to
+  When a server process exits immediately (a wrong command, a binary that
+  crashes on startup, a server that rejects its arguments), the next write to
   its stdin breaks the pipe. `start` reported the failure correctly as an
   `McpHandshakeException`, but the broken pipe surfaced separately as a
   `SocketException` that nothing observed, so a caller who caught the documented
@@ -85,14 +102,14 @@
   exist, and `checkServer` against a dead server).
 
 Still pinned to `dart_mcp` 0.5.x. Because this package's API hands back
-`dart_mcp` types — the right shape for a conformance prober — a 1.0.0 here has
+`dart_mcp` types (the right shape for a conformance prober), a 1.0.0 here has
 to wait for that package to stabilise, or freezing would guarantee a major bump
 the moment it changes.
 
 ## 0.7.0
 
 - **Stop shipping the test runner to consumers.** `package:test` was a runtime
-  dependency because `lib/src/matchers.dart` imported it — for one function,
+  dependency because `lib/src/matchers.dart` imported it for one function,
   `fail()`. `package:test` pulls 25 direct dependencies of its own, including
   `analyzer`, `shelf`, `coverage` and `node_preamble`, and every one of them
   landed in the dependency graph of anything that depended on this package.
@@ -108,8 +125,8 @@ the moment it changes.
 ## 0.6.0
 
 - Seal the exported types. `ConformanceFinding`, `ConformanceReport`,
-  `McpServerHarness` and `McpHandshakeException` carried no class modifier, so
-  a later freeze would have made every field added to a report a breaking
+  `McpServerHarness` and `McpHandshakeException` carried no class modifier.
+  A later freeze would have made every field added to a report a breaking
   change for anyone who had subclassed it. None is meant to be subtyped and
   nothing in the package, its tests or its example does. `ConformanceRules` was
   already `abstract final`. No behaviour change.
@@ -118,7 +135,7 @@ the moment it changes.
 
 - Fix `utilities/ping` ignoring the caller's configured `timeout`. `_checkPing`
   called `connection.ping()` with no arguments, which falls back to the
-  1-second default on `dart_mcp`'s `ServerConnection.ping`, so any server
+  1-second default on `dart_mcp`'s `ServerConnection.ping`. Any server
   whose ping round-trip took longer than 1 second failed this check even when
   it answered well inside the `timeout` passed to `checkServer` or
   `McpServerHarness.start`. It now passes `harness.timeout` through, matching
@@ -126,16 +143,16 @@ the moment it changes.
 
 ## 0.5.0
 
-- A composite GitHub Action, so a repository can gate its pull requests on MCP
+- A composite GitHub Action, letting a repository gate its pull requests on MCP
   conformance in a few lines: `uses: Yusufihsangorgel/mcp_probe@v1` with a
   `command`, and optional `fail-on` and `format`. It sets up Dart, activates the
   CLI, and runs the check, failing the job when a finding at or above `fail-on`
   is present. Inputs are passed through the environment rather than interpolated
-  into the shell, so a value cannot inject script. The package's own CI now
-  exercises the action against a conforming and a non-conforming fixture on
-  every push, so a change that breaks it fails CI.
+  into the shell, which stops a value from injecting script. The package's own
+  CI now exercises the action against a conforming and a non-conforming fixture
+  on every push, and a change that breaks it fails CI.
 - README notes a real `dart run` gotcha: `dart run` prints a resolution line to
-  stdout the first time, which pollutes a server launched that way, so run
+  stdout the first time, which pollutes a server launched that way. Run
   `dart pub get` before checking such a server. A compiled, Node or Python
   server has nothing to resolve.
 
@@ -147,14 +164,14 @@ the moment it changes.
   map: the probed command, the server identity, a `summary` count per severity,
   and the full findings list. The CLI gains `--format json` to print it and
   `--fail-on error|warning|info` to choose the severity at which the exit code
-  becomes 1 (default `error`), so a pipeline can fail on a warning and capture a
-  structured report in one run. Invalid flags exit 64 with a usage message.
+  becomes 1 (default `error`), letting a pipeline fail on a warning and capture
+  a structured report in one run. Invalid flags exit 64 with a usage message.
 
 ## 0.3.3
 
 - Install instructions now say `pub add` instead of pinning a version. The
   pinned number was stale by several releases and would have been stale again
-  after the next one: the README ships frozen in the archive, so a hand-edited
+  after the next one: the README ships frozen in the archive, and a hand-edited
   version line is wrong the moment anything is published. This one cannot go
   out of date.
 
@@ -194,13 +211,13 @@ the moment it changes.
 - Add a command-line tool. `dart pub global activate mcp_probe` installs an
   `mcp_probe check <command> [args...]` executable that runs a server over stdio,
   prints each conformance finding, and exits non-zero if any check reports an
-  error, so it drops into a CI step without writing any Dart.
+  error. It drops into a CI step without writing any Dart.
 
 ## 0.1.3
 
 - `listTools`, `listResources` and `listPrompts` now follow `nextCursor`
   pagination and return every page combined. Previously only the first page was
-  fetched, so a conformance run against a paginated server validated just those
+  fetched. A conformance run against a paginated server validated just those
   items and could report the server green without ever seeing the rest.
 
 ## 0.1.2
