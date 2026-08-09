@@ -135,6 +135,22 @@ Every request made through the harness is bounded by the `timeout` given to
 connection and then makes sure the process is dead, escalating to SIGTERM
 and SIGKILL if the server does not exit on its own.
 
+![Four timed runs against the same unresponsive MCP server. The top row, a
+hand-written stdio client with no timeout, is still waiting when the
+measurement stops six seconds in, and its server process is still alive.
+Below it three harness runs fail with a TimeoutException at the 500
+millisecond, 1 second and 2 second marks they were given, each followed by
+the server process exiting a few milliseconds
+later.](https://raw.githubusercontent.com/Yusufihsangorgel/mcp_probe/main/doc/timeout.png)
+
+The three lower rows differ in one argument. Whatever you pass as `timeout`
+is where the request gives up, to within a few milliseconds, and by the time
+`shutdown` returns the child process is already gone. The top row is the
+same server driven by a hand-written client with nothing bounding the wait,
+which is the shape of a suite that hangs. `dart run tool/timeout_figure.dart`
+measures all four and refuses to write the file when the control server
+answers or a wall lands off its mark.
+
 The harness wraps the common APIs. For anything else (resource
 subscriptions, progress notifications, completions), the underlying
 `dart_mcp` `ServerConnection` is available as `harness.connection`.
@@ -159,6 +175,17 @@ test('server passes the MCP conformance checks', () async {
 A server that fails the handshake still produces a report instead of
 throwing, so batch runs over several servers do not need error handling per
 server.
+
+![Grid of thirteen conformance rules across six MCP servers. The clean fixture
+is green on every rule, the five broken ones show amber or red cells on exactly
+the rules they violate, and a bottom row gives the exit code each would return
+from the CLI.](https://raw.githubusercontent.com/Yusufihsangorgel/mcp_probe/main/doc/rule-grid.png)
+
+Every cell above is a severity from a real run against the fixture servers in
+`test/fixtures/`. Four of the five broken ones finish the handshake and then
+break a rule anyway, which is the case these checks exist for. The image comes
+out of `dart run tool/rule_grid_figure.dart`, which measures first and refuses
+to write the file if the clean fixture stops coming back clean.
 
 ### Rules
 

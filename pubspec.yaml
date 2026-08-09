@@ -16,6 +16,12 @@ topics:
 
 screenshots:
   - description: |-
+      Four timed runs against one unresponsive server: with no timeout the request never returns, while each harness run fails exactly at the timeout it was given.
+    path: doc/timeout.png
+  - description: |-
+      Thirteen conformance rules run against six MCP servers, with each cell showing the severity checkServer reported and the exit code the CLI would return.
+    path: doc/rule-grid.png
+  - description: |-
       The harness starts your MCP server as a subprocess, drives it over stdio with JSON-RPC, and turns each rule's reply into one finding in a ConformanceReport.
     path: doc/architecture.png
 
