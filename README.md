@@ -29,6 +29,40 @@ resolve `.cmd` files by their bare name.
 
 ![Diagram: the harness drives an MCP server over stdio and turns each reply into a ConformanceReport](https://raw.githubusercontent.com/Yusufihsangorgel/mcp_probe/main/doc/architecture.png)
 
+## Why this instead of what you already have
+
+**Instead of a hand-rolled stdio client.** Starting a server with
+`Process.start` and speaking JSON-RPC at it is not the hard part. Getting it
+back down is: a server that never answers hangs the test run, and a failed
+handshake leaves an orphan process behind. `McpServerHarness` puts a timeout on
+every request and kills the child on the way out either way. `checkServer`
+(`lib/src/conformance.dart:74`) then runs the named rules in `ConformanceRules`
+(`:12`), including ones you would not think to write, such as
+`stdio/clean-stdout` (`:58`) for a server that prints a banner into the
+transport.
+
+**Instead of `mcp_dart_cli`.** Its `inspect-server` command does point at a live
+server and report pass, warning, and fail checks, so the command line is
+covered. Your test suite is not. Its `conformance` command describes itself as
+"not a live target inspector" (`lib/src/conformance_command.dart:16`), and its
+library file says it exists "without exposing an additional public API"
+(`lib/mcp_dart_cli.dart`), so there is nothing to import. mcp_probe goes in
+`dev_dependencies`, and `expectToolExists` and the three beside it
+(`lib/src/matchers.dart:8`) are ordinary `package:test` expectations.
+
+**Reach for it when**
+
+- You maintain an MCP server and want a red test when a rename drops a tool or
+  an `inputSchema` stops being an object.
+- You are about to build on a third-party server, in any language, and want to
+  see what it actually answers first.
+- CI needs an exit code, which `mcp_probe check --fail-on warning` returns
+  (`bin/mcp_probe.dart:91`).
+
+Skip it if the server under test is a Dart `MCPServer` in the same repo that you
+can drive in-process over a stream channel, since then the subprocess and the
+stdio transport are cost with no coverage behind them.
+
 ## Command line
 
 To check a server without writing any Dart, install the CLI and point it at the
