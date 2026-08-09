@@ -1,3 +1,13 @@
+## 0.9.8
+
+- **Fix `harnessVersion`, which 0.9.7 shipped stale.** It read `0.9.6`, so a
+  server talking to 0.9.7 was told the client was 0.9.6 and every conformance
+  report named the wrong version. `test/harness_version_test.dart` exists to
+  catch this and was red in the published archive. 0.9.7 is superseded; use
+  this. This is the third release of this package to make the same mistake, and
+  the cause is the same each time: the suite was run before the bump rather
+  than after it.
+
 ## 0.9.7
 
 - Two figures. `tool/rule_grid_figure.dart` draws the conformance rules against
