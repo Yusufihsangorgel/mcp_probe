@@ -1,3 +1,9 @@
+## 0.9.7
+
+- Two figures. `tool/rule_grid_figure.dart` draws the conformance rules against
+  the servers that ship with this package, and `tool/timeout_figure.dart` draws
+  what the harness does when a server stops answering. Docs and tooling only.
+
 ## 0.9.6
 
 - Add `example/server_test.dart`, a working test file rather than a sketch of
