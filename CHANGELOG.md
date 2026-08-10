@@ -1,3 +1,12 @@
+## 0.10.2
+
+- `harnessVersion` said `0.9.8` while the package was 0.10.1, so every server
+  this harness connected to was told the wrong client version, and every
+  conformance report named it. A test compares the two and CI runs it, which
+  is how this was found; it had been red since 2026-08-09.
+- The report a run prints keeps its indentation in the README recording. That
+  is documentation, not behaviour, but the hierarchy is the readable part.
+
 ## 0.10.1
 
 - The section on why to reach for this rather than the alternative now sits

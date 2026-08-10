@@ -9,10 +9,15 @@ import 'exceptions.dart';
 
 /// The version reported to servers as the harness client version.
 ///
-/// Kept in step with the package version by a test, because a server that logs
-/// its clients — or a conformance report that names one — is only useful if the
-/// version is the real one.
-const String harnessVersion = '0.9.8';
+/// A server that logs its clients, or a conformance report that names one, is
+/// only useful if the version is the real one.
+///
+/// ⚠️ Bump this in the same edit as `version:` in pubspec.yaml. It has drifted
+/// three times: it sat at 0.1.0 through seven releases, went stale again in
+/// 0.9.7, and 0.10.1 shipped announcing itself as 0.9.8. A test compares the
+/// two and CI runs it, so the drift is caught — but only after the release it
+/// went out in, which is why this note is here rather than in a changelog.
+const String harnessVersion = '0.10.2';
 
 /// Runs an MCP server as a child process and talks to it over stdio using the
 /// `dart_mcp` client, so tests can exercise the server end to end.

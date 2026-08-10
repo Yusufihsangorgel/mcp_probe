@@ -2,6 +2,13 @@
 
 ![mcp_probe banner](https://raw.githubusercontent.com/Yusufihsangorgel/mcp_probe/main/doc/banner.png)
 
+![A run of example/probe_demo.dart against four servers: one clean, one logging into the transport, one shipping a tool with no input schema, one that never answers a ping](https://raw.githubusercontent.com/Yusufihsangorgel/mcp_probe/main/doc/probe-run.gif)
+
+Four servers, each broken in a way that passes a smoke test. Every line above
+is a rule that fired, named so you can look it up, and the whole thing is
+`dart run example/probe_demo.dart` — recorded, not drawn. Swap in your own
+server and the report is about yours.
+
 ## Why this instead of what you already have
 
 **Instead of a hand-rolled stdio client.** Starting a server with
