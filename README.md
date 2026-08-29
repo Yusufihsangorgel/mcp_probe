@@ -108,25 +108,64 @@ mcp_probe check --fail-on warning --format json dart run my_server.dart > report
 
 ## In a GitHub Actions workflow
 
-A composite action gates a pull request on conformance in a few lines. It sets
-up Dart, activates the CLI, and runs the check:
+Other repositories reference the composite action in this repo with
+`{owner}/{repo}@{tag}`. That path resolves only when the repository is public,
+`action.yml` sits at the repository root, and the tag exists
+([Using pre-written building blocks](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/find-and-customize-actions#adding-an-action-from-a-different-repository);
+[Metadata syntax](https://docs.github.com/en/actions/reference/workflows-and-actions/metadata-syntax)).
+
+The snippets below pin `v0.10.3`, matching `version:` in `pubspec.yaml`. A
+`uses:` of that form fetches `action.yml` from that tag; GitHub does not
+resolve it until a maintainer creates the tag (the hand steps are in
+`RELEASE-CHECKLIST.md`). Copying the workflow before then fails with a
+missing-action error, not a conformance report. This repository's own CI
+calls the action as `uses: ./` after checkout, which is the same-repo form
+and does not need a tag.
+
+The common case is one server, fail the job on an error (`fail-on` defaults to
+`error`):
 
 ```yaml
-- uses: Yusufihsangorgel/mcp_probe@v0.9.8
-  with:
-    command: dart run bin/server.dart
-    fail-on: warning   # error (default), warning, or info
-    format: markdown   # or json
+name: MCP conformance
+
+on:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Yusufihsangorgel/mcp_probe@v0.10.3
+        with:
+          command: dart run bin/server.dart
 ```
 
-`command` is the only required input; it is the command that launches your
-server over stdio, and it is passed through whole, so `dart run` and
-`npx -y some-server` both work. The step fails the job when a finding at or
-above `fail-on` is present.
+Once that tag exists, the action sets up Dart, activates the CLI from
+pub.dev, and runs `mcp_probe check`. The step fails the job when a finding at
+or above `fail-on` is present. Lower the bar with the `fail-on` flag:
 
-Checked against the servers in this repository: the well-behaved fixture exits
-0 with 12 checks and no findings, and the one that logs to stdout exits 1 on
-the same 12.
+```yaml
+      - uses: Yusufihsangorgel/mcp_probe@v0.10.3
+        with:
+          command: dart run bin/server.dart
+          fail-on: warning   # error (default), warning, or info
+```
+
+`command` is the only required input. It is the line that launches your server
+over stdio, passed through whole, so `dart run …` and `npx -y some-server`
+both work. The other inputs, from `action.yml`:
+
+| Input | Required | Default | What it does |
+| --- | --- | --- | --- |
+| `command` | yes | — | Server launch command. |
+| `fail-on` | no | `error` | Fail the job when a finding at or above this severity is present: `error`, `warning`, or `info`. |
+| `format` | no | `markdown` | Report written to the log: `markdown` or `json`. |
+| `version` | no | empty (latest on pub.dev) | Pub version constraint for the `mcp_probe` CLI the action activates. Independent of the action tag. |
+
+Checked in this repository's CI (`uses: ./` after checkout, so it does not
+depend on the `v0.10.3` tag): the well-behaved fixture exits 0 with 12 checks
+and no findings, and the one that logs to stdout exits 1 on the same 12.
 
 If your server launches with `dart run`, run `dart pub get` earlier in the job.
 `dart run` prints a resolution line to stdout the first time, which would land

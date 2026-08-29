@@ -1,3 +1,14 @@
+## 0.10.3
+
+- The composite action nested `dart-lang/setup-dart`, which registers a
+  problem matcher whose file lives in that action's workspace. GitHub
+  resolves the matcher against the caller, so the file was missing and every
+  run failed before `mcp_probe check`. This action does not run `dart
+  analyze`. It now passes `problem-matcher: false`.
+- The README now documents using the action from another repository: the
+  `{owner}/{repo}@{tag}` form, what has to be true for that path to resolve,
+  and that this repository's own CI uses `uses: ./` after checkout.
+
 ## 0.10.2
 
 - `harnessVersion` said `0.9.8` while the package was 0.10.1, so every server

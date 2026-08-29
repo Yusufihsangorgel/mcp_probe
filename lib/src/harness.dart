@@ -17,7 +17,7 @@ import 'exceptions.dart';
 /// 0.9.7, and 0.10.1 shipped announcing itself as 0.9.8. A test compares the
 /// two and CI runs it, so the drift is caught — but only after the release it
 /// went out in, which is why this note is here rather than in a changelog.
-const String harnessVersion = '0.10.2';
+const String harnessVersion = '0.10.3';
 
 /// Runs an MCP server as a child process and talks to it over stdio using the
 /// `dart_mcp` client, so tests can exercise the server end to end.
