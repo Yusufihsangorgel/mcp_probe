@@ -33,6 +33,11 @@ runs:
   using: composite
   steps:
     - uses: dart-lang/setup-dart@v1
+      with:
+        # Nested composite: setup-dart resolves dart-analyzer.json against
+        # the caller workspace, so the matcher file is missing. We do not
+        # run dart analyze.
+        problem-matcher: false
     - name: Activate mcp_probe
       shell: bash
       env:
