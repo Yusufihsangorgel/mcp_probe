@@ -57,35 +57,27 @@ void main() {
     timeout: const Timeout(Duration(seconds: 40)),
   );
 
-  test(
-    'a command that does not exist fails cleanly',
-    () async {
-      final result = await runGuarded(
-        () => McpServerHarness.start('mcp-probe-no-such-binary-xyz'),
-      );
+  test('a command that does not exist fails cleanly', () async {
+    final result = await runGuarded(
+      () => McpServerHarness.start('mcp-probe-no-such-binary-xyz'),
+    );
 
-      expect(result.caught, isA<McpHandshakeException>());
-      expect(result.unhandled, isNull);
-    },
-    timeout: const Timeout(Duration(seconds: 40)),
-  );
+    expect(result.caught, isA<McpHandshakeException>());
+    expect(result.unhandled, isNull);
+  }, timeout: const Timeout(Duration(seconds: 40)));
 
-  test(
-    'checkServer on a dead server reports instead of crashing',
-    () async {
-      ConformanceReport? report;
-      final result = await runGuarded(() async {
-        report = await checkServer('true');
-      });
+  test('checkServer on a dead server reports instead of crashing', () async {
+    ConformanceReport? report;
+    final result = await runGuarded(() async {
+      report = await checkServer('true');
+    });
 
-      expect(result.unhandled, isNull);
-      expect(report, isNotNull);
-      expect(
-        report!.findings,
-        isNotEmpty,
-        reason: 'a server that will not start should produce findings',
-      );
-    },
-    timeout: const Timeout(Duration(seconds: 40)),
-  );
+    expect(result.unhandled, isNull);
+    expect(report, isNotNull);
+    expect(
+      report!.findings,
+      isNotEmpty,
+      reason: 'a server that will not start should produce findings',
+    );
+  }, timeout: const Timeout(Duration(seconds: 40)));
 }
