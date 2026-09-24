@@ -8,11 +8,11 @@ executables:
   mcp_probe:
 repository: https://github.com/Yusufihsangorgel/mcp_probe
 topics:
-  - mcp
-  - testing
-  - ai
-  - server
   - conformance
+  - mcp-testing
+  - mcp-server
+  - model-context-protocol
+  - test-harness
 
 screenshots:
   - description: |-
