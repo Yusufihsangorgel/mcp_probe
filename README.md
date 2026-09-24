@@ -241,9 +241,10 @@ subscriptions, progress notifications, completions), the underlying
 `dart_mcp` `ServerConnection` is available as `harness.connection`.
 
 The expectation helpers live in the separate
-`package:mcp_probe/testing.dart` entrypoint because they depend on
-`package:test`. The harness and the conformance checks do not use it,
-though the package still lists `test` as a dependency for that entrypoint.
+`package:mcp_probe/testing.dart` entrypoint, which keeps them out of the main
+import. They take `fail()` from `package:matcher`, a regular dependency.
+`package:test` is only a dev dependency of this package: declare it in your
+own `dev_dependencies` to run tests with these helpers.
 
 ## Conformance checks
 
