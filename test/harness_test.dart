@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:dart_mcp/client.dart';
 import 'package:json_rpc_2/error_code.dart' as error_code;
@@ -219,6 +220,35 @@ void main() {
     await harness.shutdown(killAfter: const Duration(seconds: 1));
     expect(await processIsAlive(pid), isFalse);
   });
+
+  test(
+    'shutdown escalates to SIGKILL when the server ignores SIGTERM',
+    () async {
+      const killAfter = Duration(seconds: 1);
+      const margin = Duration(seconds: 2);
+      final maxDuration = killAfter + const Duration(seconds: 2) + margin;
+      final harness = await startFixture('sigterm_ignoring_server');
+      final pid = harness.pid;
+      addTearDown(() async {
+        if (await processIsAlive(pid)) {
+          Process.killPid(pid, ProcessSignal.sigkill);
+        }
+      });
+
+      final stopwatch = Stopwatch()..start();
+      final exitCode = await harness
+          .shutdown(killAfter: killAfter)
+          .timeout(maxDuration);
+      stopwatch.stop();
+
+      expect(stopwatch.elapsed, lessThan(maxDuration));
+      expect(exitCode, -9);
+      expect(await processIsAlive(pid), isFalse);
+    },
+    skip: Platform.isWindows
+        ? 'SIGKILL exit status and ps process checks are POSIX-specific'
+        : false,
+  );
 
   group('with a paginated tools server', () {
     late McpServerHarness harness;
