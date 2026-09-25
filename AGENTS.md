@@ -72,3 +72,7 @@ void main() {
 - `action.yml` — composite Action, required input `command`
 - `dart test` — package tests. `dart test example/server_test.dart` — the copyable suite. `dart run example/probe_demo.dart` — four fixture reports. `dart run example/mcp_probe_example.dart` — Markdown report of the well-behaved fixture. `dart analyze`
 - In `lib/`, relative imports. Bump `harnessVersion` in `lib/src/harness.dart` in the same edit as `version:` in `pubspec.yaml` (`test/harness_version_test.dart` compares them)
+
+## Contributing
+
+Before changing this repository, read [CONTRIBUTING.md](CONTRIBUTING.md), [package engineering rules](docs/engineering/package.md), and the [debt register](docs/engineering/debt.json). These requirements apply to every contributor. The usage guidance above remains the consumer contract.

@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "package": "mcp_probe",
+  "survey_digest": "f90f45c8a172068c3ed3b9488ba5a7cb4e58efa93c380d2d9a70b399349ec35e",
+  "items": [
+    {
+      "id": "mcp_probe-D001",
+      "source_index": 1,
+      "source_item_digest": "8e6f1452217ea3329c7f413148a7ff042a9f39542e46be4788d1833791dbd8f2",
+      "baseline_revision": "4f7e092",
+      "status": "open",
+      "size": "medium",
+      "locations": [
+        {
+          "path": "bin/mcp_probe.dart",
+          "lines": "94-105"
+        },
+        {
+          "path": "README.md",
+          "lines": "88-91"
+        },
+        {
+          "path": "action.yml",
+          "lines": "15-20"
+        }
+      ],
+      "kind": "meaningless option / wrong behavior",
+      "observation": "Because passing rules are recorded as info findings (report.dart:44-48; conformance.dart:127-131), `--fail-on info` returns 1 for every server. The README describes this as 'lowers the bar', and the action also offers the `info` option.",
+      "certainty": "confirmed",
+      "proposed_fix": "Define the meaning of the info threshold: either remove the `info` option or separate observation from passing. Add tests, update the README and action.yml.",
+      "related_rule_ids": [
+        "mcp_probe/MCP-04",
+        "mcp_probe/MCP-11"
+      ],
+      "issue_url": null,
+      "closure_criteria": "Either the info option is removed from bin/mcp_probe.dart, README.md and action.yml or passing observations no longer fail the run. Tests cover the chosen behavior and the CI action job stays green.",
+      "review_trigger": "Before modifying the affected code",
+      "resolution": null
+    },
+    {
+      "id": "mcp_probe-D002",
+      "source_index": 2,
+      "source_item_digest": "ee207989e35d0fe5c494344909550bc1b42c6884025c18992a2419960cf975c8",
+      "baseline_revision": "4f7e092",
+      "status": "open",
+      "size": "medium",
+      "locations": [
+        {
+          "path": "bin/mcp_probe.dart",
+          "lines": "15-136"
+        }
+      ],
+      "kind": "untested behavior",
+      "observation": "There is no unit test for flag parsing, exit codes (0/1/64/70), and `_shouldFail`. Only the CI action job checks a single non-zero exit case (ci.yaml:43-49).",
+      "certainty": "confirmed",
+      "proposed_fix": "Move `_shouldFail` and `_severity` to lib/src (for example a threshold method on the report) and test them. Add Process.run based tests for flags and exit codes.",
+      "related_rule_ids": [
+        "mcp_probe/MCP-01",
+        "mcp_probe/MCP-11"
+      ],
+      "issue_url": null,
+      "closure_criteria": "_shouldFail and _severity move to lib/src, for example as a threshold method on the report, with unit tests. Process.run based tests cover flag parsing and the exit codes 0, 1, 64 and 70.",
+      "review_trigger": "Before modifying the affected code",
+      "resolution": null
+    },
+    {
+      "id": "mcp_probe-D003",
+      "source_index": 3,
+      "source_item_digest": "39b613c26bb51ab263f8d75532b04f242829907c38db4756e922e38bcc28f037",
+      "baseline_revision": "4f7e092",
+      "status": "open",
+      "size": "small",
+      "locations": [
+        {
+          "path": "lib/src/conformance.dart",
+          "lines": "429-464"
+        }
+      ],
+      "kind": "contract gap",
+      "observation": "`_checkMethodNotFound` catches only RpcException and TimeoutException. Any other error (the connection closing, or the TypeError of the cast at harness.dart:368 when the result is not an object) propagates out of checkServer and breaks the 'server data → finding' contract at 118-120. The sibling rules (235, 350, 382, 406) catch everything.",
+      "certainty": "confirmed",
+      "proposed_fix": "Add the same 'turn every error into a finding' branch. Write a test with a fixture server that returns a non-object result for an unknown method.",
+      "related_rule_ids": [
+        "mcp_probe/MCP-03"
+      ],
+      "issue_url": null,
+      "closure_criteria": "_checkMethodNotFound turns every error into a finding like its sibling rules. A fixture server returning a non-object result for an unknown method backs a test.",
+      "review_trigger": "Before modifying the affected code",
+      "resolution": null
+    },
+    {
+      "id": "mcp_probe-D004",
+      "source_index": 4,
+      "source_item_digest": "b7088c513de8378e93302c5fd237d1c86bab4ceb49865182bd5b8220da14200e",
+      "baseline_revision": "4f7e092",
+      "status": "open",
+      "size": "small",
+      "locations": [
+        {
+          "path": "lib/src/harness.dart",
+          "lines": "300-301,394,420,428"
+        }
+      ],
+      "kind": "unnamed operational constant",
+      "observation": "The 10000 page limit and the 2 s kill stages are written as fixed literals. They are not named and documented like stderrCap and stdoutNoiseCap (52-56).",
+      "certainty": "confirmed",
+      "proposed_fix": "Use a named static const with dartdoc, or derive the value from `killAfter`.",
+      "related_rule_ids": [
+        "mcp_probe/MCP-06"
+      ],
+      "issue_url": null,
+      "closure_criteria": "The 10000 page limit and the 2 s kill stages are named static const values with dartdoc or derive from killAfter.",
+      "review_trigger": "Before modifying the affected code",
+      "resolution": null
+    },
+    {
+      "id": "mcp_probe-D005",
+      "source_index": 5,
+      "source_item_digest": "8891227f5aedc6d02376ccdcd96c980dee197a7772c74f01bc4531ad7950903e",
+      "baseline_revision": "4f7e092",
+      "status": "open",
+      "size": "small",
+      "locations": [
+        {
+          "path": "lib/src/harness.dart",
+          "lines": "128,212"
+        },
+        {
+          "path": "lib/src/conformance.dart",
+          "lines": "235,350,382,406"
+        }
+      ],
+      "kind": "untyped catch",
+      "observation": "Places that turn an error into a finding or a handshake exception use `catch (e)`. This trips the shared typed catch rule (J10, D11). bin/mcp_probe.dart:67 already uses `on Object catch`.",
+      "certainty": "confirmed",
+      "proposed_fix": "`on Object catch` with a one-line rationale.",
+      "related_rule_ids": [
+        "mcp_probe/MCP-10"
+      ],
+      "issue_url": null,
+      "closure_criteria": "All listed catch sites read on Object catch with a one-line rationale comment.",
+      "review_trigger": "Before modifying the affected code",
+      "resolution": null
+    }
+  ]
+}
