@@ -58,7 +58,8 @@ Anything after the first argument is passed to the command, so the same line
 works for a compiled binary, a Node server, or a Python one.
 
 There is a command-line front end for the same thing, which is what to put in a
-pipeline. It exits 0 when every check passes and 1 when any reports an error:
+pipeline. It exits 1 when any check reports an error and 0 otherwise, and
+`--fail-on warning` also fails on warnings:
 
 ```yaml
 - run: dart pub global activate mcp_probe
@@ -131,4 +132,4 @@ prints the report as the failure reason when a rule breaks, which is what turns
 a red CI run into something you can read.
 
 Copy the file into your own `test/` directory and change the command the
-harness starts. Five tests, about a second.
+harness starts. Five tests.

@@ -4,10 +4,10 @@
 
 ![A run of example/probe_demo.dart against four servers: one clean, one logging into the transport, one shipping a tool with no input schema, one that never answers a ping](https://raw.githubusercontent.com/Yusufihsangorgel/mcp_probe/main/doc/probe-run.gif)
 
-Four servers, each broken in a way that passes a smoke test. Every line above
-is a rule that fired, named so you can look it up, and the whole thing is
-`dart run example/probe_demo.dart` — recorded, not drawn. Swap in your own
-server and the report is about yours.
+Four servers, one clean and three broken in ways that pass a smoke test. Every
+rule line above is a rule that fired, named so you can look it up, and the whole
+thing is `dart run example/probe_demo.dart`, recorded and not drawn. Swap in your
+own server and the report is about yours.
 
 ## Why this instead of what you already have
 
@@ -21,14 +21,10 @@ every request and kills the child on the way out either way. `checkServer`
 `stdio/clean-stdout` (`:58`) for a server that prints a banner into the
 transport.
 
-**Instead of `mcp_dart_cli`.** Its `inspect-server` command does point at a live
-server and report pass, warning, and fail checks, so the command line is
-covered. Your test suite is not. Its `conformance` command describes itself as
-"not a live target inspector" (`lib/src/conformance_command.dart:16`), and its
-library file says it exists "without exposing an additional public API"
-(`lib/mcp_dart_cli.dart`), so there is nothing to import. mcp_probe goes in
+**For your own test suite.** mcp_probe provides a command line checker,
+`mcp_probe check`, and four expectations for use with `package:test`. It goes in
 `dev_dependencies`, and `expectToolExists` and the three beside it
-(`lib/src/matchers.dart:8`) are ordinary `package:test` expectations.
+(`lib/src/matchers.dart:8`) are ordinary expectations that run inside a `package:test` test.
 
 **Reach for it when**
 
@@ -106,6 +102,10 @@ mcp_probe check --fail-on warning --format json dart run my_server.dart > report
 }
 ```
 
+This sample is shortened. In a real report `findings` lists every finding that
+`summary` counts, including the warning and the eleven other info entries left
+out here.
+
 ## In a GitHub Actions workflow
 
 Other repositories reference the composite action in this repo with
@@ -114,7 +114,7 @@ Other repositories reference the composite action in this repo with
 ([Using pre-written building blocks](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/find-and-customize-actions#adding-an-action-from-a-different-repository);
 [Metadata syntax](https://docs.github.com/en/actions/reference/workflows-and-actions/metadata-syntax)).
 
-The snippets below pin `v0.10.3`, matching `version:` in `pubspec.yaml`. A
+The snippets below pin `v0.10.4`, matching `version:` in `pubspec.yaml`. A
 `uses:` of that form fetches `action.yml` from that tag; GitHub does not
 resolve it until a maintainer creates the tag (the hand steps are in
 `RELEASE-CHECKLIST.md`). Copying the workflow before then fails with a
@@ -136,17 +136,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: Yusufihsangorgel/mcp_probe@v0.10.3
+      - uses: Yusufihsangorgel/mcp_probe@v0.10.4
         with:
           command: dart run bin/server.dart
 ```
 
 Once that tag exists, the action sets up Dart, activates the CLI from
 pub.dev, and runs `mcp_probe check`. The step fails the job when a finding at
-or above `fail-on` is present. Lower the bar with the `fail-on` flag:
+or above `fail-on` is present. Lower the bar with the `fail-on` input:
 
 ```yaml
-      - uses: Yusufihsangorgel/mcp_probe@v0.10.3
+      - uses: Yusufihsangorgel/mcp_probe@v0.10.4
         with:
           command: dart run bin/server.dart
           fail-on: warning   # error (default), warning, or info
@@ -163,9 +163,11 @@ both work. The other inputs, from `action.yml`:
 | `format` | no | `markdown` | Report written to the log: `markdown` or `json`. |
 | `version` | no | empty (latest on pub.dev) | Pub version constraint for the `mcp_probe` CLI the action activates. Independent of the action tag. |
 
-Checked in this repository's CI (`uses: ./` after checkout, so it does not
-depend on the `v0.10.3` tag): the well-behaved fixture exits 0 with 12 checks
-and no findings, and the one that logs to stdout exits 1 on the same 12.
+This repository's CI runs the action with `uses: ./` after checkout, which needs
+no `v0.10.4` tag. The well-behaved fixture must exit 0, and the CLI on the
+fixture that logs to stdout must exit non-zero. Each run reports 12 checks. For
+the well-behaved fixture all 12 are info findings, with no errors or warnings.
+The stdout fixture has 11 info findings and one error.
 
 If your server launches with `dart run`, run `dart pub get` earlier in the job.
 `dart run` prints a resolution line to stdout the first time, which would land
@@ -241,9 +243,10 @@ subscriptions, progress notifications, completions), the underlying
 `dart_mcp` `ServerConnection` is available as `harness.connection`.
 
 The expectation helpers live in the separate
-`package:mcp_probe/testing.dart` entrypoint because they depend on
-`package:test`. The harness and the conformance checks do not use it,
-though the package still lists `test` as a dependency for that entrypoint.
+`package:mcp_probe/testing.dart` entrypoint because they are meant to run
+inside a test and fail it through `package:matcher`. The harness and the
+conformance checks do not use it. `test` is only a dev dependency of this
+package. Add it to your own dev dependencies.
 
 ## Conformance checks
 

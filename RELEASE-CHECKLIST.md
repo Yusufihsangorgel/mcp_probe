@@ -1,7 +1,7 @@
 # Release checklist for the composite action
 
 Nothing in this working tree publishes the action. A consumer's
-`uses: Yusufihsangorgel/mcp_probe@v0.10.3` resolves only after a human creates
+`uses: Yusufihsangorgel/mcp_probe@v0.10.4` resolves only after a human creates
 that git tag (and, for Marketplace discovery, a GitHub Release with the
 Marketplace box checked). Do not run these steps from an agent session that
 was told not to push tags or create releases.
@@ -23,8 +23,8 @@ Citations are the GitHub Docs pages as of 2026-08-29.
 - The repository is public. A public repository is required for
   `{owner}/{repo}@{ref}` from another repo.
   ([Adding an action from a different repository](https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/find-and-customize-actions#adding-an-action-from-a-different-repository))
-- The README consumer snippet pins **`v0.10.3`**, matching `version:` in
-  `pubspec.yaml`. Remote tags currently stop at `v0.9.8`. **`v0.10.3` does not
+- The README consumer snippet pins **`v0.10.4`**, matching `version:` in
+  `pubspec.yaml`. Remote tags currently stop at `v0.9.8`. **`v0.10.4` does not
   exist until you create it.**
 
 A GitHub Release and a Marketplace listing are **not** required for
@@ -40,14 +40,14 @@ GitHub recommends tags, not the default branch.
    `test/fixtures/well_behaved_server.dart`. That job must be green on the
    commit you tag.
 
-## 2. Create the version tag `v0.10.3`
+## 2. Create the version tag `v0.10.4`
 
 GitHub's documented release-management sequence
 ([Managing custom actions](https://docs.github.com/en/actions/how-tos/create-and-publish-actions/manage-custom-actions#using-tags-for-release-management)):
 
 1. Develop and validate the release (the commit you are about to tag).
 2. Create a release with a release tag using semantic versioning
-   (for this package: `v0.10.3`).
+   (for this package: `v0.10.4`).
 3. Move a major-version tag to that release (see step 5; optional until 1.0).
 4. Introduce a new major tag only for breaking workflow changes (for example
    changing inputs).
@@ -56,18 +56,18 @@ Create the annotated tag and push it (do this on the machine that may talk to
 GitHub, not as part of a "prepare only" session):
 
 ```sh
-git tag -a v0.10.3 -m "v0.10.3"
-git push origin v0.10.3
+git tag -a v0.10.4 -m "v0.10.4"
+git push origin v0.10.4
 ```
 
 Or create the tag in the GitHub Release UI in step 3: **Choose a tag** → type
-`v0.10.3` → **Create new tag**, with **Target** set to the branch that contains
+`v0.10.4` → **Create new tag**, with **Target** set to the branch that contains
 the `action.yml` you want consumers to run.
 ([Managing releases in a repository](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository#creating-a-release))
 
 Do not create a `v0.10.2` tag on this tree. `0.10.2` is already on pub.dev
 from an earlier commit; tagging a later tree with that version would pin
-consumers at code that is not what pub shipped. This tree is `0.10.3`. Tag
+consumers at code that is not what pub shipped. This tree is `0.10.4`. Tag
 that.
 
 ## 3. Publish a GitHub Release for that tag
@@ -78,9 +78,9 @@ From
 1. On GitHub, open the repository home page.
 2. To the right of the file list, click **Releases**.
 3. Click **Draft a new release**.
-4. **Choose a tag**: select `v0.10.3`, or type it and click **Create new tag**.
+4. **Choose a tag**: select `v0.10.4`, or type it and click **Create new tag**.
 5. If you created the tag here, set **Target** to the branch with the action.
-6. **Release title**: for example `v0.10.3`.
+6. **Release title**: for example `v0.10.4`.
 7. **Describe this release**: paste the matching `CHANGELOG.md` section, or
    click **Generate release notes**.
 8. Leave **This is a pre-release** unchecked for a production pin.
@@ -91,7 +91,7 @@ From
 CLI equivalent from the same page:
 
 ```sh
-gh release create v0.10.3 --title "v0.10.3" --notes-file CHANGELOG.md
+gh release create v0.10.4 --title "v0.10.4" --notes-file CHANGELOG.md
 ```
 
 Use `gh release create` only after the tag exists or pass the tag so the
@@ -131,7 +131,7 @@ Steps:
 5. **Primary Category**: pick the category that will help people find the
    action.
 6. Optionally pick **Another Category**.
-7. **Tag**: `v0.10.3` (this is the version shown on the Marketplace page).
+7. **Tag**: `v0.10.4` (this is the version shown on the Marketplace page).
 8. **Title**: a release title.
 9. Complete the remaining fields and click **Publish release**. Two-factor
    authentication is required.
@@ -152,12 +152,12 @@ GitHub recommends that **consumers** pin a major version (`@v1`) and that
 ([Managing custom actions](https://docs.github.com/en/actions/how-tos/create-and-publish-actions/manage-custom-actions#using-tags-for-release-management);
 [Releasing and maintaining actions](https://docs.github.com/en/actions/how-tos/create-and-publish-actions/release-and-maintain-actions)).
 
-This package is still `0.10.3`. The README therefore pins `@v0.10.3`, not
+This package is still `0.10.4`. The README therefore pins `@v0.10.4`, not
 `@v1`. Do not advertise `@v1` until you create that tag and point it at a
 release you are willing to treat as the 1.x line. When you do:
 
 ```sh
-git tag -a v1 v0.10.3 -m "v1 tracks v0.10.3"
+git tag -a v1 v0.10.4 -m "v1 tracks v0.10.4"
 git push origin v1
 ```
 
@@ -176,9 +176,9 @@ instead of moving release-tied tags.
 
 ## 6. After it resolves
 
-1. The README snippet `uses: Yusufihsangorgel/mcp_probe@v0.10.3` should fetch
+1. The README snippet `uses: Yusufihsangorgel/mcp_probe@v0.10.4` should fetch
    `action.yml` from that tag. Confirm with a throwaway workflow in another
-   public repository, or by adding a temporary `uses: Yusufihsangorgel/mcp_probe@v0.10.3`
+   public repository, or by adding a temporary `uses: Yusufihsangorgel/mcp_probe@v0.10.4`
    step in this repo's `action` job.
 2. If you listed on Marketplace, the listing page's **Installation** block is
    the syntax GitHub copies for consumers

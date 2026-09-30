@@ -1,3 +1,18 @@
+## 0.10.4
+
+- The README no longer compares this package to `mcp_dart_cli`. The comparison
+  made claims about another package that nothing here checks.
+- The opening paragraph now says one of the four demo servers is clean.
+- The sample JSON report is marked as shortened, since its summary counts
+  findings the sample does not list.
+- The CI paragraph now says the well-behaved fixture reports 12 info findings,
+  not "no findings", and gives the counts for the stdout fixture.
+- The README no longer says `test` is a dependency of this package. It is a dev
+  dependency, and `testing.dart` uses `package:matcher`.
+- `fail-on` is described as an action input, and the command line exit code
+  description in `example/README.md` now covers warnings.
+- `example/README.md` no longer gives a run time for `example/server_test.dart`.
+
 ## 0.10.3
 
 - The composite action nested `dart-lang/setup-dart`, which registers a
