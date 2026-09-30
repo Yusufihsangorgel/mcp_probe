@@ -12,6 +12,8 @@
 - `fail-on` is described as an action input, and the command line exit code
   description in `example/README.md` now covers warnings.
 - `example/README.md` no longer gives a run time for `example/server_test.dart`.
+- The README now says when to pick the MCP Inspector instead of this package and
+  when to pick this package.
 
 ## 0.10.3
 

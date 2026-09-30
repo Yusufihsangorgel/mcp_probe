@@ -26,6 +26,22 @@ transport.
 `dev_dependencies`, and `expectToolExists` and the three beside it
 (`lib/src/matchers.dart:8`) are ordinary expectations that run inside a `package:test` test.
 
+**Instead of the MCP Inspector.** The
+[MCP Inspector](https://modelcontextprotocol.io/docs/tools/inspector) is the
+reference developer tool from the MCP project. It is a TypeScript package that
+runs through `npx` and has a web client, a terminal client and a scriptable CLI.
+Its CLI documentation describes one request per run, exit codes that separate
+failure classes, and CI recipes built on `jq`. It can also reach a server over
+HTTP and handle OAuth.
+
+- Pick the Inspector to explore a server by hand, to test a server that is only
+  reachable over HTTP, or when the check you need is one request plus a `jq`
+  filter.
+- Pick mcp_probe when the assertions belong in a Dart test suite, as
+  `package:test` expectations, or when you want a fixed list of named rules run
+  in one command, with `--fail-on` deciding the exit code. It has no interactive
+  interface and speaks stdio only.
+
 **Reach for it when**
 
 - You maintain an MCP server and want a red test when a rename drops a tool or
